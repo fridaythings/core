@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "ES2018",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "allowJs": true,
+    "strict": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "declaration" : true,
+    "noImplicitAny": true,
+    "typeRoots": ["./node_modules/@types"],
+    "outDir": "dist"
+  },
+  "exclude": ["dist", "coverage"]
+}
