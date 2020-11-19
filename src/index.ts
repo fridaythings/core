@@ -2,7 +2,7 @@ import { EventEmitter } from 'events';
 
 namespace Core {
   export interface IConnectionOptions {
-    host: string;
+    host?: string;
     port?: number;
   }
 
@@ -29,12 +29,14 @@ namespace Core {
       Readable: 'readable',
     };
     // @ts-ignore
-    protected _host: string;
+    protected _host: string = '';
     protected _port: number = 0;
 
     constructor(options: IConnectionOptions) {
       super();
-      this._host = options.host;
+      if (options.host !== undefined) {
+        this._host = options.host;
+      }
       if (options.port !== undefined) {
         this._port = options.port;
       }
