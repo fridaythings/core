@@ -28,7 +28,6 @@ namespace Core {
       Error: 'error',
       Readable: 'readable',
     };
-    // @ts-ignore
     protected _host: string = '';
     protected _port: number = 0;
 
@@ -50,11 +49,11 @@ namespace Core {
       return this._port;
     }
 
-    public async connect() {
+    public async connect(): Promise<void> {
       throw new Error('connect: No implementation');
     }
 
-    public async send(...args: any[]) {
+    public async send(...args: any[]): Promise<any> {
       throw new Error('connect: No implementation');
     }
 

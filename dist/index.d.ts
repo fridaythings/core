@@ -2,7 +2,7 @@
 import { EventEmitter } from 'events';
 declare namespace Core {
     interface IConnectionOptions {
-        host: string;
+        host?: string;
         port?: number;
     }
     interface IConnection extends EventEmitter {
@@ -32,7 +32,7 @@ declare namespace Core {
         get host(): string;
         get port(): number;
         connect(): Promise<void>;
-        send(...args: any[]): Promise<void>;
+        send(...args: any[]): Promise<any>;
         disconnect(): void;
     }
 }

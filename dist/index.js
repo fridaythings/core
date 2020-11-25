@@ -6,8 +6,11 @@ var Core;
     class Connection extends events_1.EventEmitter {
         constructor(options) {
             super();
+            this._host = '';
             this._port = 0;
-            this._host = options.host;
+            if (options.host !== undefined) {
+                this._host = options.host;
+            }
             if (options.port !== undefined) {
                 this._port = options.port;
             }
