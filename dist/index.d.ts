@@ -113,6 +113,7 @@ declare namespace Core {
         send(command: string, params?: any): Promise<Core.IDataResponse>;
     }
     interface IService extends EventEmitter {
+        readonly devices: Core.Device[];
         start(): Promise<void>;
         stop(): void;
         scan(): Promise<void>;
@@ -134,6 +135,7 @@ declare namespace Core {
         protected _timeouts: NodeJS.Timeout[];
         constructor(options?: IServiceOptions);
         scan(): Promise<void>;
+        get devices(): Device[];
         start(): Promise<void>;
         stop(): void;
     }

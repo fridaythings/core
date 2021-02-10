@@ -233,6 +233,7 @@ namespace Core {
 
 
   export interface IService extends EventEmitter {
+    readonly devices: Core.Device[];
     start(): Promise<void>;
     stop(): void;
     scan(): Promise<void>;
@@ -265,6 +266,10 @@ namespace Core {
 
     public async scan(): Promise<void> {
       throw new Error(`No "scan" implementation for service: [port: ${this._options.port}]`);
+    }
+
+    public get devices() {
+      return [...this._devices.values()];
     }
 
     public async start(): Promise<void> {

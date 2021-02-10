@@ -168,6 +168,9 @@ var Core;
         async scan() {
             throw new Error(`No "scan" implementation for service: [port: ${this._options.port}]`);
         }
+        get devices() {
+            return [...this._devices.values()];
+        }
         async start() {
             this.on(ServiceEventType.Start, async () => {
                 await this.scan();
