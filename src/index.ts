@@ -230,6 +230,59 @@ namespace Core {
       return super.send(command, params);
     }
   }
+
+
+  export interface IService extends EventEmitter {
+    start(): Promise<void>;
+    stop(): void;
+    scan(): Promise<void>;
+  }
+
+  export interface IServiceOptions {
+    port?: number;
+  }
+
+  export enum ServiceEventType {
+    Start = 'start',
+    Stop = 'stop',
+    DeviceAdded = 'device-added',
+    DeviceChanged = 'device-changed',
+    DeviceRemoved = 'device-removed',
+  }
+
+  export class Service extends EventEmitter implements IService {
+    protected static readonly ScanInterval = 5000;
+
+    protected readonly _options: IServiceOptions;
+    protected readonly _devices: Map<string, Device> = new Map();
+
+    protected _timeouts: NodeJS.Timeout[] = [];
+
+    constructor(options?: IServiceOptions) {
+      super();
+      this._options = options ?? {};
+    }
+
+    public async scan(): Promise<void> {
+      throw new Error(`No "scan" implementation for service: [port: ${this._options.port}]`);
+    }
+
+    public async start(): Promise<void> {
+      this.on(ServiceEventType.Start, async () => {
+        await this.scan();
+        const timeoutId = setInterval(this.scan.bind(this), Service.ScanInterval);
+        this._timeouts.push(timeoutId);
+      });
+    }
+
+    public stop() {
+      this._devices.forEach(device => device.disconnect());
+      this._timeouts.forEach(clearTimeout);
+      this._timeouts = [];
+      this.removeAllListeners();
+      this.emit(ServiceEventType.Stop);
+    }
+  }
 }
 
 export default Core;

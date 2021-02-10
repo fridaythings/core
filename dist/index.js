@@ -150,5 +150,40 @@ var Core;
         }
     }
     Core.TCPDevice = TCPDevice;
+    let ServiceEventType;
+    (function (ServiceEventType) {
+        ServiceEventType["Start"] = "start";
+        ServiceEventType["Stop"] = "stop";
+        ServiceEventType["DeviceAdded"] = "device-added";
+        ServiceEventType["DeviceChanged"] = "device-changed";
+        ServiceEventType["DeviceRemoved"] = "device-removed";
+    })(ServiceEventType = Core.ServiceEventType || (Core.ServiceEventType = {}));
+    class Service extends events_1.EventEmitter {
+        constructor(options) {
+            super();
+            this._devices = new Map();
+            this._timeouts = [];
+            this._options = options !== null && options !== void 0 ? options : {};
+        }
+        async scan() {
+            throw new Error(`No "scan" implementation for service: [port: ${this._options.port}]`);
+        }
+        async start() {
+            this.on(ServiceEventType.Start, async () => {
+                await this.scan();
+                const timeoutId = setInterval(this.scan.bind(this), Service.ScanInterval);
+                this._timeouts.push(timeoutId);
+            });
+        }
+        stop() {
+            this._devices.forEach(device => device.disconnect());
+            this._timeouts.forEach(clearTimeout);
+            this._timeouts = [];
+            this.removeAllListeners();
+            this.emit(ServiceEventType.Stop);
+        }
+    }
+    Service.ScanInterval = 5000;
+    Core.Service = Service;
 })(Core || (Core = {}));
 exports.default = Core;

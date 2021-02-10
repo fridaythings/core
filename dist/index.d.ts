@@ -112,5 +112,30 @@ declare namespace Core {
         disconnect(): void;
         send(command: string, params?: any): Promise<Core.IDataResponse>;
     }
+    interface IService extends EventEmitter {
+        start(): Promise<void>;
+        stop(): void;
+        scan(): Promise<void>;
+    }
+    interface IServiceOptions {
+        port?: number;
+    }
+    enum ServiceEventType {
+        Start = "start",
+        Stop = "stop",
+        DeviceAdded = "device-added",
+        DeviceChanged = "device-changed",
+        DeviceRemoved = "device-removed"
+    }
+    class Service extends EventEmitter implements IService {
+        protected static readonly ScanInterval = 5000;
+        protected readonly _options: IServiceOptions;
+        protected readonly _devices: Map<string, Device>;
+        protected _timeouts: NodeJS.Timeout[];
+        constructor(options?: IServiceOptions);
+        scan(): Promise<void>;
+        start(): Promise<void>;
+        stop(): void;
+    }
 }
 export default Core;
