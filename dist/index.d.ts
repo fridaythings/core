@@ -160,7 +160,7 @@ declare namespace Core {
             protected _server: net.Server;
             protected _connections: Set<net.Socket>;
             constructor(options: Core.TCP.IServiceManagerOptions);
-            protected broadcast(event: Core.ServiceEventType, payload: {
+            protected broadcast(event: Core.ServiceEventType, device: {
                 [key: string]: any;
             }, sockets?: Set<net.Socket>): void;
             connect(): Promise<void>;

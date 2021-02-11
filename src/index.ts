@@ -344,11 +344,11 @@ namespace Core {
 
       protected broadcast(
         event: Core.ServiceEventType,
-        payload: { [key: string]: any },
+        device: { [key: string]: any },
         sockets: Set<net.Socket> = this._connections
       ) {
         for (const connection of sockets) {
-          const data = TCP.F.deserialize({ event, date: new Date(), payload });
+          const data = TCP.F.deserialize({ event, date: new Date(), device });
           connection.write(data);
         }
       }
