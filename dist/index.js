@@ -158,6 +158,7 @@ var Core;
     Core.TCPDevice = TCPDevice;
     let ServiceEventType;
     (function (ServiceEventType) {
+        ServiceEventType["Error"] = "Error";
         ServiceEventType["Start"] = "start";
         ServiceEventType["Stop"] = "stop";
         ServiceEventType["DeviceAdded"] = "device-added";

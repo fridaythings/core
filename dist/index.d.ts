@@ -126,6 +126,7 @@ declare namespace Core {
         port?: number;
     }
     enum ServiceEventType {
+        Error = "Error",
         Start = "start",
         Stop = "stop",
         DeviceAdded = "device-added",

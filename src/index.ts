@@ -104,7 +104,7 @@ namespace Core {
     readonly commands: string[];
     send(...args: any[]): Promise<Core.IDataResponse>;
     send(command: string, params: any): Promise<Core.IDataResponse>;
-    toObject(): Core.IDeviceObject,
+    toObject(): Core.IDeviceObject;
     toString(): string;
   }
 
@@ -146,7 +146,7 @@ namespace Core {
 
     public emit(event: string | symbol, ...args: any[]): boolean {
       this._eventId++;
-      return super.emit(event, ...args)
+      return super.emit(event, ...args);
     }
 
     public get id() {
@@ -224,9 +224,7 @@ namespace Core {
     }
 
     public async connect(): Promise<void> {
-      return new Promise(resolve =>
-        this._client.connect({ port: this._port, host: this._host }, resolve)
-      );
+      return new Promise(resolve => this._client.connect({ port: this._port, host: this._host }, resolve));
     }
 
     public disconnect(): void {
@@ -238,7 +236,6 @@ namespace Core {
       return super.send(command, params);
     }
   }
-
 
   export interface IService extends EventEmitter {
     readonly devices: Map<string, Core.Device>;
@@ -252,6 +249,7 @@ namespace Core {
   }
 
   export enum ServiceEventType {
+    Error = 'Error',
     Start = 'start',
     Stop = 'stop',
     DeviceAdded = 'device-added',
