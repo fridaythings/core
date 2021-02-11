@@ -241,7 +241,7 @@ namespace Core {
 
 
   export interface IService extends EventEmitter {
-    readonly devices: Core.Device[];
+    readonly devices: Map<string, Core.Device>;
     start(): Promise<void>;
     stop(): void;
     scan(): Promise<void>;
@@ -259,11 +259,11 @@ namespace Core {
     DeviceRemoved = 'device-removed',
   }
 
-  export class Service extends EventEmitter implements IService {
+  export class Service extends EventEmitter implements Core.IService {
     protected static readonly ScanInterval = 5000;
 
-    protected readonly _options: IServiceOptions;
-    protected readonly _devices: Map<string, Device> = new Map();
+    protected readonly _options: Core.IServiceOptions;
+    protected readonly _devices: Map<string, Core.Device> = new Map();
 
     protected _timeouts: NodeJS.Timeout[] = [];
 
@@ -277,7 +277,7 @@ namespace Core {
     }
 
     public get devices() {
-      return [...this._devices.values()];
+      return this._devices;
     }
 
     public async start(): Promise<void> {
