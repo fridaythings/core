@@ -93,6 +93,7 @@ namespace Core {
   export interface IDeviceObject extends Core.IDeviceOptions {
     commands: string[];
     state: Core.IDeviceState;
+    eventId: number;
   }
 
   export interface IDeviceInterface extends Core.IConnection {
@@ -111,6 +112,7 @@ namespace Core {
     protected static RequestTimeout = 5000;
 
     protected _requestId: number = 0;
+    protected _eventId: number = 0;
 
     protected _id: string;
     protected _model: string;
@@ -140,6 +142,11 @@ namespace Core {
         callback(new Error(`Request timeout: ${id}`));
         clearTimeout(timeoutId);
       }, Device.RequestTimeout);
+    }
+
+    public emit(event: string | symbol, ...args: any[]): boolean {
+      this._eventId++;
+      return super.emit(event, ...args)
     }
 
     public get id() {
@@ -189,6 +196,7 @@ namespace Core {
         version: this.version,
         commands: this.commands,
         state: this.state,
+        eventId: this._eventId,
       };
     }
 
