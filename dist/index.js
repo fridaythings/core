@@ -28,7 +28,7 @@ var Core;
         DeviceEventType["Change"] = "change";
     })(DeviceEventType = Core.DeviceEventType || (Core.DeviceEventType = {}));
     class Connection extends events_1.EventEmitter {
-        constructor(options) {
+        constructor(options = {}) {
             super();
             this._host = '';
             this._port = 0;
@@ -190,39 +190,41 @@ var Core;
     Core.TCPDevice = TCPDevice;
     let ServiceEventType;
     (function (ServiceEventType) {
-        ServiceEventType["Error"] = "Error";
-        ServiceEventType["Start"] = "start";
-        ServiceEventType["Stop"] = "stop";
+        ServiceEventType["Error"] = "error";
+        ServiceEventType["Connect"] = "connect";
+        ServiceEventType["Disconnect"] = "disconnect";
         ServiceEventType["DeviceAdded"] = "device-added";
         ServiceEventType["DeviceChanged"] = "device-changed";
         ServiceEventType["DeviceRemoved"] = "device-removed";
     })(ServiceEventType = Core.ServiceEventType || (Core.ServiceEventType = {}));
-    class Service extends events_1.EventEmitter {
+    class Service extends Connection {
         constructor(options) {
-            super();
+            super(options);
             this._devices = new Map();
             this._timeouts = [];
-            this._options = options !== null && options !== void 0 ? options : {};
-        }
-        async scan() {
-            throw new Error(`No "scan" implementation for service: [port: ${this._options.port}]`);
         }
         get devices() {
             return this._devices;
         }
-        async start() {
-            this.on(ServiceEventType.Start, async () => {
+        async scan() {
+            throw new Error(`No "scan" implementation for service: [port: ${this._port}]`);
+        }
+        async send(...args) {
+            throw new Error(`No "send" implementation for service: [port: ${this._port}]`);
+        }
+        async connect() {
+            this.on(ServiceEventType.Connect, async () => {
                 await this.scan();
                 const timeoutId = setInterval(this.scan.bind(this), Service.ScanInterval);
                 this._timeouts.push(timeoutId);
             });
         }
-        stop() {
+        disconnect() {
             this._devices.forEach(device => device.disconnect());
             this._timeouts.forEach(clearTimeout);
             this._timeouts = [];
             this.removeAllListeners();
-            this.emit(ServiceEventType.Stop);
+            this.emit(ServiceEventType.Disconnect);
         }
     }
     Service.ScanInterval = 5000;

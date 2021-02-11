@@ -10,9 +10,8 @@ declare namespace Core {
     host: string;
     port: number;
     connect(): Promise<void>;
-    send(...args: any[]): Promise<any>;
-    send(buffer: Buffer): Promise<any>;
     disconnect(): void;
+    send(...args: any[]): Promise<any>;
   }
   enum ConnectionEventType {
     Connection = 'connection',
@@ -35,7 +34,7 @@ declare namespace Core {
   class Connection extends EventEmitter implements IConnection {
     protected _host: string;
     protected _port: number;
-    constructor(options: IConnectionOptions);
+    constructor(options?: IConnectionOptions);
     get host(): string;
     get port(): number;
     connect(): Promise<void>;
@@ -124,33 +123,31 @@ declare namespace Core {
     disconnect(): void;
     send(command: string, params?: any): Promise<Core.IDataResponse>;
   }
-  interface IService extends EventEmitter {
+  interface IService extends Core.IConnection {
     readonly devices: Map<string, Core.Device>;
-    scan(): Promise<void>;
-    start(): Promise<void>;
-    stop(): void;
   }
   interface IServiceOptions {
     port?: number;
+    host?: string;
   }
   enum ServiceEventType {
-    Error = 'Error',
-    Start = 'start',
-    Stop = 'stop',
+    Error = 'error',
+    Connect = 'connect',
+    Disconnect = 'disconnect',
     DeviceAdded = 'device-added',
     DeviceChanged = 'device-changed',
     DeviceRemoved = 'device-removed',
   }
-  class Service extends EventEmitter implements Core.IService {
+  class Service extends Connection implements Core.IService {
     protected static readonly ScanInterval = 5000;
-    protected readonly _options: Core.IServiceOptions;
     protected readonly _devices: Map<string, Core.Device>;
     protected _timeouts: NodeJS.Timeout[];
-    constructor(options?: IServiceOptions);
-    scan(): Promise<void>;
+    constructor(options?: Core.IServiceOptions);
     get devices(): Map<string, Device>;
-    start(): Promise<void>;
-    stop(): void;
+    protected scan(): Promise<void>;
+    send(...args: any[]): Promise<void>;
+    connect(): Promise<void>;
+    disconnect(): void;
   }
 }
 export default Core;

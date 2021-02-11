@@ -12,9 +12,8 @@ namespace Core {
     host: string;
     port: number;
     connect(): Promise<void>;
-    send(...args: any[]): Promise<any>;
-    send(buffer: Buffer): Promise<any>;
     disconnect(): void;
+    send(...args: any[]): Promise<any>;
   }
 
   export enum ConnectionEventType {
@@ -41,7 +40,7 @@ namespace Core {
     protected _host: string = '';
     protected _port: number = 0;
 
-    constructor(options: IConnectionOptions) {
+    constructor(options: IConnectionOptions = {}) {
       super();
       if (options.host !== undefined) {
         this._host = options.host;
@@ -269,61 +268,61 @@ namespace Core {
     }
   }
 
-  export interface IService extends EventEmitter {
+  export interface IService extends Core.IConnection {
     readonly devices: Map<string, Core.Device>;
-    scan(): Promise<void>;
-    start(): Promise<void>;
-    stop(): void;
   }
 
   export interface IServiceOptions {
     port?: number;
+    host?: string;
   }
 
   export enum ServiceEventType {
-    Error = 'Error',
-    Start = 'start',
-    Stop = 'stop',
+    Error = 'error',
+    Connect = 'connect',
+    Disconnect = 'disconnect',
     DeviceAdded = 'device-added',
     DeviceChanged = 'device-changed',
     DeviceRemoved = 'device-removed',
   }
 
-  export class Service extends EventEmitter implements Core.IService {
+  export class Service extends Connection implements Core.IService {
     protected static readonly ScanInterval = 5000;
 
-    protected readonly _options: Core.IServiceOptions;
     protected readonly _devices: Map<string, Core.Device> = new Map();
 
     protected _timeouts: NodeJS.Timeout[] = [];
 
-    constructor(options?: IServiceOptions) {
-      super();
-      this._options = options ?? {};
-    }
-
-    public async scan(): Promise<void> {
-      throw new Error(`No "scan" implementation for service: [port: ${this._options.port}]`);
+    constructor(options?: Core.IServiceOptions) {
+      super(options);
     }
 
     public get devices() {
       return this._devices;
     }
 
-    public async start(): Promise<void> {
-      this.on(ServiceEventType.Start, async () => {
+    protected async scan(): Promise<void> {
+      throw new Error(`No "scan" implementation for service: [port: ${this._port}]`);
+    }
+
+    public async send(...args: any[]) {
+      throw new Error(`No "send" implementation for service: [port: ${this._port}]`);
+    }
+
+    public async connect(): Promise<void> {
+      this.on(ServiceEventType.Connect, async () => {
         await this.scan();
         const timeoutId = setInterval(this.scan.bind(this), Service.ScanInterval);
         this._timeouts.push(timeoutId);
       });
     }
 
-    public stop() {
+    public disconnect() {
       this._devices.forEach(device => device.disconnect());
       this._timeouts.forEach(clearTimeout);
       this._timeouts = [];
       this.removeAllListeners();
-      this.emit(ServiceEventType.Stop);
+      this.emit(ServiceEventType.Disconnect);
     }
   }
 }
