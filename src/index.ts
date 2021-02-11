@@ -76,7 +76,7 @@ namespace Core {
   }
 
   export interface IDeviceState {
-    power?: boolean;
+    [key: string]: any;
   }
 
   export interface IDeviceOptions extends Core.IConnectionOptions {
@@ -188,6 +188,7 @@ namespace Core {
 
     public toObject() {
       return {
+        eventId: this._eventId,
         id: this.id,
         host: this.host,
         port: this.port,
@@ -196,7 +197,6 @@ namespace Core {
         version: this.version,
         commands: this.commands,
         state: this.state,
-        eventId: this._eventId,
       };
     }
 
@@ -242,9 +242,9 @@ namespace Core {
 
   export interface IService extends EventEmitter {
     readonly devices: Map<string, Core.Device>;
+    scan(): Promise<void>;
     start(): Promise<void>;
     stop(): void;
-    scan(): Promise<void>;
   }
 
   export interface IServiceOptions {
