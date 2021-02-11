@@ -113,6 +113,7 @@ var Core;
         }
         toObject() {
             return {
+                eventId: this._eventId,
                 id: this.id,
                 host: this.host,
                 port: this.port,
@@ -121,7 +122,6 @@ var Core;
                 version: this.version,
                 commands: this.commands,
                 state: this.state,
-                eventId: this._eventId,
             };
         }
         toString() {

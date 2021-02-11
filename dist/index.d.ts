@@ -46,7 +46,7 @@ declare namespace Core {
         result: any;
     }
     interface IDeviceState {
-        power?: boolean;
+        [key: string]: any;
     }
     interface IDeviceOptions extends Core.IConnectionOptions {
         host: string;
@@ -97,6 +97,7 @@ declare namespace Core {
         connect(): Promise<void>;
         disconnect(): void;
         toObject(): {
+            eventId: number;
             id: string;
             host: string;
             port: number;
@@ -105,7 +106,6 @@ declare namespace Core {
             version: string;
             commands: string[];
             state: IDeviceState;
-            eventId: number;
         };
         toString(): string;
     }
@@ -118,9 +118,9 @@ declare namespace Core {
     }
     interface IService extends EventEmitter {
         readonly devices: Map<string, Core.Device>;
+        scan(): Promise<void>;
         start(): Promise<void>;
         stop(): void;
-        scan(): Promise<void>;
     }
     interface IServiceOptions {
         port?: number;
