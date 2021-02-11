@@ -131,6 +131,37 @@ var Core;
     }
     Device.RequestTimeout = 5000;
     Core.Device = Device;
+    let TCP;
+    (function (TCP) {
+        class F {
+            static deserialize(data) {
+                try {
+                    return JSON.stringify(data) + '\r\n';
+                }
+                catch (e) {
+                    console.error('TCP.F.deserialize:', data, e);
+                    return '';
+                }
+            }
+            static serialize(buffer) {
+                const lines = buffer.toString().split(Core.TCP.F.Separator);
+                return lines.reduce((acc, line) => {
+                    if (line) {
+                        try {
+                            const data = JSON.parse(line);
+                            acc.push(data);
+                        }
+                        catch (e) {
+                            console.error('TCP.F.serialize:', line, e);
+                        }
+                    }
+                    return acc;
+                }, []);
+            }
+        }
+        F.Separator = '\r\n';
+        TCP.F = F;
+    })(TCP = Core.TCP || (Core.TCP = {}));
     class TCPDevice extends Core.Device {
         constructor(options) {
             super(options);

@@ -1,5 +1,6 @@
 import { EventEmitter } from 'events';
 import net from 'net';
+import { serialize } from 'v8';
 
 namespace Core {
   export interface IConnectionOptions {
@@ -203,6 +204,36 @@ namespace Core {
 
     public toString() {
       return JSON.stringify(this.toObject());
+    }
+  }
+
+  export namespace TCP {
+    export class F {
+      private static Separator = '\r\n';
+
+      public static deserialize(data: { [key: string]: any }): string {
+        try {
+          return JSON.stringify(data) + '\r\n';
+        } catch (e) {
+          console.error('TCP.F.deserialize:', data, e);
+          return '';
+        }
+      }
+
+      public static serialize(buffer: Buffer): any[] {
+        const lines = buffer.toString().split(Core.TCP.F.Separator);
+        return lines.reduce((acc, line) => {
+          if (line) {
+            try {
+              const data = JSON.parse(line);
+              acc.push(data);
+            } catch (e) {
+              console.error('TCP.F.serialize:', line, e);
+            }
+          }
+          return acc;
+        }, <any[]>[]);
+      }
     }
   }
 
