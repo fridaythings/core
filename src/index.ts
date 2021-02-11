@@ -360,7 +360,7 @@ namespace Core {
 
           socket.on(Core.ConnectionEventType.End, () => this._connections.delete(socket));
 
-          socket.on(Core.ConnectionEventType.Data, buffer => {
+          socket.on(Core.ConnectionEventType.Data, (buffer: Buffer) => {
             const { deviceId, command, params } = JSON.parse(buffer.toString());
             if (!deviceId || !command) {
               console.error('No required params.');
