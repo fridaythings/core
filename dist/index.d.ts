@@ -15,6 +15,7 @@ declare namespace Core {
         disconnect(): void;
     }
     enum ConnectionEventType {
+        Connection = "connection",
         Connect = "connect",
         Close = "close",
         Data = "data",

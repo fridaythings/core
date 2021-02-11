@@ -17,6 +17,7 @@ namespace Core {
   }
 
   export enum ConnectionEventType {
+    Connection = 'connection',
     Connect = 'connect',
     Close = 'close',
     Data = 'data',

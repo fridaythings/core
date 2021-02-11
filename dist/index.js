@@ -9,6 +9,7 @@ var Core;
 (function (Core) {
     let ConnectionEventType;
     (function (ConnectionEventType) {
+        ConnectionEventType["Connection"] = "connection";
         ConnectionEventType["Connect"] = "connect";
         ConnectionEventType["Close"] = "close";
         ConnectionEventType["Data"] = "data";
