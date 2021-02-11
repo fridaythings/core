@@ -59,6 +59,7 @@ var Core;
         constructor(options) {
             super(options);
             this._requestId = 0;
+            this._eventId = 0;
             this._state = {};
             this._commands = [];
             this._id = options.id;
@@ -77,6 +78,10 @@ var Core;
                 callback(new Error(`Request timeout: ${id}`));
                 clearTimeout(timeoutId);
             }, Device.RequestTimeout);
+        }
+        emit(event, ...args) {
+            this._eventId++;
+            return super.emit(event, ...args);
         }
         get id() {
             return this._id;
@@ -116,6 +121,7 @@ var Core;
                 version: this.version,
                 commands: this.commands,
                 state: this.state,
+                eventId: this._eventId,
             };
         }
         toString() {
@@ -169,7 +175,7 @@ var Core;
             throw new Error(`No "scan" implementation for service: [port: ${this._options.port}]`);
         }
         get devices() {
-            return [...this._devices.values()];
+            return this._devices;
         }
         async start() {
             this.on(ServiceEventType.Start, async () => {

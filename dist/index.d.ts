@@ -61,6 +61,7 @@ declare namespace Core {
     interface IDeviceObject extends Core.IDeviceOptions {
         commands: string[];
         state: Core.IDeviceState;
+        eventId: number;
     }
     interface IDeviceInterface extends Core.IConnection {
         readonly id: string;
@@ -76,6 +77,7 @@ declare namespace Core {
     class Device extends Core.Connection implements IDeviceInterface {
         protected static RequestTimeout: number;
         protected _requestId: number;
+        protected _eventId: number;
         protected _id: string;
         protected _model: string;
         protected _name: string;
@@ -84,6 +86,7 @@ declare namespace Core {
         protected _commands: string[];
         constructor(options: IDeviceOptions);
         protected onTimeout(id: number, callback: (error: Error) => void): void;
+        emit(event: string | symbol, ...args: any[]): boolean;
         get id(): string;
         get model(): string;
         get name(): string;
@@ -102,6 +105,7 @@ declare namespace Core {
             version: string;
             commands: string[];
             state: IDeviceState;
+            eventId: number;
         };
         toString(): string;
     }
@@ -113,7 +117,7 @@ declare namespace Core {
         send(command: string, params?: any): Promise<Core.IDataResponse>;
     }
     interface IService extends EventEmitter {
-        readonly devices: Core.Device[];
+        readonly devices: Map<string, Core.Device>;
         start(): Promise<void>;
         stop(): void;
         scan(): Promise<void>;
@@ -128,14 +132,14 @@ declare namespace Core {
         DeviceChanged = "device-changed",
         DeviceRemoved = "device-removed"
     }
-    class Service extends EventEmitter implements IService {
+    class Service extends EventEmitter implements Core.IService {
         protected static readonly ScanInterval = 5000;
-        protected readonly _options: IServiceOptions;
-        protected readonly _devices: Map<string, Device>;
+        protected readonly _options: Core.IServiceOptions;
+        protected readonly _devices: Map<string, Core.Device>;
         protected _timeouts: NodeJS.Timeout[];
         constructor(options?: IServiceOptions);
         scan(): Promise<void>;
-        get devices(): Device[];
+        get devices(): Map<string, Device>;
         start(): Promise<void>;
         stop(): void;
     }
