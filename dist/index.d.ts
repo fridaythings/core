@@ -127,6 +127,7 @@ declare namespace Core {
         Error = "error",
         Connect = "connect",
         Disconnect = "disconnect",
+        Data = "data",
         DeviceAdded = "device-added",
         DeviceChanged = "device-changed",
         DeviceRemoved = "device-removed"
@@ -164,6 +165,13 @@ declare namespace Core {
             }, sockets?: Set<net.Socket>): void;
             connect(): Promise<void>;
             disconnect(): void;
+        }
+        class ServiceClient extends Core.Connection {
+            private _client;
+            constructor(options: Core.IConnectionOptions);
+            connect(): Promise<void>;
+            disconnect(): void;
+            send(deviceId: string, command: string, params?: any): Promise<any>;
         }
     }
 }

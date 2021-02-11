@@ -162,6 +162,7 @@ var Core;
         ServiceEventType["Error"] = "error";
         ServiceEventType["Connect"] = "connect";
         ServiceEventType["Disconnect"] = "disconnect";
+        ServiceEventType["Data"] = "data";
         ServiceEventType["DeviceAdded"] = "device-added";
         ServiceEventType["DeviceChanged"] = "device-changed";
         ServiceEventType["DeviceRemoved"] = "device-removed";
@@ -281,6 +282,29 @@ var Core;
             }
         }
         TCP.ServiceManager = ServiceManager;
+        class ServiceClient extends Core.Connection {
+            constructor(options) {
+                super(options);
+                this._client = new net_1.default.Socket();
+            }
+            async connect() {
+                await new Promise(resolve => this._client.connect(this._port, resolve));
+                this._client.on(Core.ConnectionEventType.Error, this.emit.bind(this, Core.ServiceEventType.Error));
+                this._client.on(Core.ConnectionEventType.Close, this.emit.bind(this, Core.ServiceEventType.Disconnect));
+                this._client.on(Core.ConnectionEventType.Data, buffer => {
+                    TCP.F.serialize(buffer).forEach(data => this.emit(Core.ServiceEventType.Data, data));
+                });
+            }
+            disconnect() {
+                this._client.destroy();
+                this.removeAllListeners();
+            }
+            async send(deviceId, command, params) {
+                const data = TCP.F.deserialize({ deviceId, command, params });
+                this._client.write(data);
+            }
+        }
+        TCP.ServiceClient = ServiceClient;
     })(TCP = Core.TCP || (Core.TCP = {}));
 })(Core || (Core = {}));
 exports.default = Core;

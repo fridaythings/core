@@ -252,6 +252,7 @@ namespace Core {
     Error = 'error',
     Connect = 'connect',
     Disconnect = 'disconnect',
+    Data = 'data',
     DeviceAdded = 'device-added',
     DeviceChanged = 'device-changed',
     DeviceRemoved = 'device-removed',
@@ -401,6 +402,34 @@ namespace Core {
         }
 
         this.broadcast(Core.ServiceEventType.Disconnect, this._connections);
+      }
+    }
+
+    export class ServiceClient extends Core.Connection {
+      private _client: net.Socket = new net.Socket();
+
+      constructor(options: Core.IConnectionOptions) {
+        super(options);
+      }
+
+      async connect(): Promise<void> {
+        await new Promise(resolve => this._client.connect(this._port, resolve));
+
+        this._client.on(Core.ConnectionEventType.Error, this.emit.bind(this, Core.ServiceEventType.Error));
+        this._client.on(Core.ConnectionEventType.Close, this.emit.bind(this, Core.ServiceEventType.Disconnect));
+        this._client.on(Core.ConnectionEventType.Data, buffer => {
+          TCP.F.serialize(buffer).forEach(data => this.emit(Core.ServiceEventType.Data, data));
+        });
+      }
+
+      disconnect() {
+        this._client.destroy();
+        this.removeAllListeners();
+      }
+
+      async send(deviceId: string, command: string, params?: any): Promise<any> {
+        const data = TCP.F.deserialize({ deviceId, command, params });
+        this._client.write(data);
       }
     }
   }
