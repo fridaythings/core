@@ -353,8 +353,6 @@ namespace Core {
       }
 
       public async connect(): Promise<void> {
-        await util.promisify(this._server.listen.bind(this, this._port));
-
         this._server.on(Core.ConnectionEventType.Connection, socket => {
           this._connections.add(socket);
 
@@ -394,6 +392,7 @@ namespace Core {
           );
         }
         await Promise.all(promises);
+        await new Promise(resolve => this._server.listen(this._port, resolve));
       }
 
       public disconnect() {
