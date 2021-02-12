@@ -207,7 +207,7 @@ var Core;
                     return JSON.stringify(data) + '\r\n';
                 }
                 catch (e) {
-                    console.error('TCP.F.deserialize:', data, e);
+                    console.error(data, e);
                     return '';
                 }
             }
@@ -220,7 +220,7 @@ var Core;
                             acc.push(data);
                         }
                         catch (e) {
-                            console.error('TCP.F.serialize:', line, e);
+                            console.error(line, e);
                         }
                     }
                     return acc;
@@ -236,9 +236,9 @@ var Core;
                 this._connections = new Set();
                 this._services = new Set(options.services);
             }
-            broadcast(event, payload, sockets = this._connections) {
+            broadcast(event, device, sockets = this._connections) {
                 for (const connection of sockets) {
-                    const data = TCP.F.deserialize({ event, date: new Date(), payload });
+                    const data = TCP.F.deserialize({ event, date: new Date(), device });
                     connection.write(data);
                 }
             }
@@ -272,7 +272,7 @@ var Core;
                     promises.push(service.connect(), new Promise(resolve => service.once(Core.ServiceEventType.Connect, resolve)));
                 }
                 await Promise.all(promises);
-                await new Promise(resolve => this._server.listen(this._port, resolve));
+                await new Promise(resolve => this._server.listen({ port: this._port, host: this._host }, resolve));
             }
             disconnect() {
                 for (const service of this._services) {
@@ -288,7 +288,7 @@ var Core;
                 this._client = new net_1.default.Socket();
             }
             async connect() {
-                await new Promise(resolve => this._client.connect(this._port, resolve));
+                await new Promise(resolve => this._client.connect({ port: this._port, host: this._host }, resolve));
                 this._client.on(Core.ConnectionEventType.Error, this.emit.bind(this, Core.ServiceEventType.Error));
                 this._client.on(Core.ConnectionEventType.Close, this.emit.bind(this, Core.ServiceEventType.Disconnect));
                 this._client.on(Core.ConnectionEventType.Data, buffer => {
@@ -301,7 +301,7 @@ var Core;
             }
             async send(deviceId, command, params) {
                 const data = TCP.F.deserialize({ deviceId, command, params });
-                this._client.write(data);
+                return new Promise(resolve => this._client.write(data, resolve));
             }
         }
         TCP.ServiceClient = ServiceClient;

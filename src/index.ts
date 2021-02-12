@@ -306,7 +306,7 @@ namespace Core {
         try {
           return JSON.stringify(data) + '\r\n';
         } catch (e) {
-          console.error('TCP.F.deserialize:', data, e);
+          console.error(data, e);
           return '';
         }
       }
@@ -319,7 +319,7 @@ namespace Core {
               const data = JSON.parse(line);
               acc.push(data);
             } catch (e) {
-              console.error('TCP.F.serialize:', line, e);
+              console.error(line, e);
             }
           }
           return acc;
@@ -393,7 +393,7 @@ namespace Core {
           );
         }
         await Promise.all(promises);
-        await new Promise(resolve => this._server.listen(this._port, resolve));
+        await new Promise(resolve => this._server.listen({ port: this._port, host: this._host }, resolve));
       }
 
       public disconnect() {
@@ -413,7 +413,7 @@ namespace Core {
       }
 
       async connect(): Promise<void> {
-        await new Promise(resolve => this._client.connect(this._port, resolve));
+        await new Promise(resolve => this._client.connect({ port: this._port, host: this._host }, resolve));
 
         this._client.on(Core.ConnectionEventType.Error, this.emit.bind(this, Core.ServiceEventType.Error));
         this._client.on(Core.ConnectionEventType.Close, this.emit.bind(this, Core.ServiceEventType.Disconnect));
@@ -429,7 +429,7 @@ namespace Core {
 
       async send(deviceId: string, command: string, params?: any): Promise<any> {
         const data = TCP.F.deserialize({ deviceId, command, params });
-        this._client.write(data);
+        return new Promise(resolve => this._client.write(data, resolve));
       }
     }
   }
