@@ -44,10 +44,10 @@ declare namespace Core {
         Connect = "connect",
         Disconnect = "disconnect",
         Data = "data",
-        PermitJoin = "PermitJoin",
-        DeviceAdded = "device-added",
-        DeviceChanged = "device-changed",
-        DeviceRemoved = "device-removed"
+        PermitJoin = "permit_join",
+        DeviceAdded = "device_added",
+        DeviceChanged = "device_changed",
+        DeviceRemoved = "device_removed"
     }
     export enum DeviceEventType {
         Connect = "connect",

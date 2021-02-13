@@ -64,10 +64,10 @@ var Core;
         ServiceEventType["Connect"] = "connect";
         ServiceEventType["Disconnect"] = "disconnect";
         ServiceEventType["Data"] = "data";
-        ServiceEventType["PermitJoin"] = "PermitJoin";
-        ServiceEventType["DeviceAdded"] = "device-added";
-        ServiceEventType["DeviceChanged"] = "device-changed";
-        ServiceEventType["DeviceRemoved"] = "device-removed";
+        ServiceEventType["PermitJoin"] = "permit_join";
+        ServiceEventType["DeviceAdded"] = "device_added";
+        ServiceEventType["DeviceChanged"] = "device_changed";
+        ServiceEventType["DeviceRemoved"] = "device_removed";
     })(ServiceEventType = Core.ServiceEventType || (Core.ServiceEventType = {}));
     let DeviceEventType;
     (function (DeviceEventType) {
