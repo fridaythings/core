@@ -219,14 +219,14 @@ namespace Core {
 
     public toObject() {
       return {
-        id: this.id,
-        host: this.host,
-        port: this.port,
-        model: this.model,
-        name: this.name,
-        version: this.version,
-        commands: this.commands,
-        state: this.state,
+        id: this._id,
+        host: this._host,
+        port: this._port,
+        model: this._model,
+        name: this._name,
+        version: this._version,
+        commands: this._commands,
+        state: this._state,
       };
     }
 
