@@ -93,18 +93,18 @@ var Core;
         }
     }
     Core.Connection = Connection;
-    let DeviceType;
-    (function (DeviceType) {
-        DeviceType["Unknown"] = "unknown";
-        DeviceType["Net"] = "net";
-        DeviceType["Zigbee"] = "zigbee";
-    })(DeviceType = Core.DeviceType || (Core.DeviceType = {}));
+    let ServiceType;
+    (function (ServiceType) {
+        ServiceType["Unknown"] = "UnknownService";
+        ServiceType["Yeelight"] = "YeelightService";
+        ServiceType["Zigbee"] = "ZigbeeService";
+    })(ServiceType = Core.ServiceType || (Core.ServiceType = {}));
     class Device extends Core.Connection {
         constructor(options) {
             super(options);
             this._requestId = 0;
             this._eventId = 0;
-            this._type = Core.DeviceType.Unknown;
+            this._type = Core.ServiceType.Unknown;
             this._state = {};
             this._commands = [];
             this._id = options.id;
@@ -117,6 +117,7 @@ var Core;
             if (options.commands !== undefined) {
                 this._commands = options.commands;
             }
+            console.log('this._type:', this._type);
         }
         onTimeout(id, callback) {
             const timeoutId = setTimeout(() => {
@@ -196,7 +197,6 @@ var Core;
     class TCPDevice extends Core.Device {
         constructor(options) {
             super(options);
-            this._type = DeviceType.Net;
             this._client = new net_1.default.Socket();
             this._client.setEncoding('utf8');
             this._client.setNoDelay();

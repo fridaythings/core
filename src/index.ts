@@ -133,16 +133,16 @@ namespace Core {
     state?: Core.IDeviceState;
   }
 
-  export enum DeviceType {
-    Unknown = 'unknown',
-    Net = 'net',
-    Zigbee = 'zigbee',
+  export enum ServiceType {
+    Unknown = 'UnknownService',
+    Yeelight = 'YeelightService',
+    Zigbee = 'ZigbeeService',
   }
 
   export interface IDeviceObject extends Core.IDeviceOptions {
     commands: string[];
     state: Core.IDeviceState;
-    type: DeviceType;
+    type: ServiceType;
   }
 
   export interface IDeviceInterface extends Core.IConnection {
@@ -152,7 +152,7 @@ namespace Core {
     version: string;
     state: IDeviceState;
     commands: string[];
-    type: DeviceType;
+    type: ServiceType;
     send(...args: any[]): Promise<Core.IDataResponse>;
     send(command: string, params: any): Promise<Core.IDataResponse>;
     toObject(): Core.IDeviceObject;
@@ -166,7 +166,7 @@ namespace Core {
     protected _eventId: number = 0;
 
     protected _id: string;
-    protected _type: Core.DeviceType = Core.DeviceType.Unknown;
+    protected _type: Core.ServiceType = Core.ServiceType.Unknown;
     protected _model: string;
     protected _name: string;
     protected _version: string;
@@ -187,6 +187,7 @@ namespace Core {
       if (options.commands !== undefined) {
         this._commands = options.commands;
       }
+      console.log('this._type:', this._type);
     }
 
     protected onTimeout(id: number, callback: (error: Error) => void) {
@@ -282,7 +283,6 @@ namespace Core {
   }
 
   export class TCPDevice extends Core.Device {
-    protected _type: Core.DeviceType = DeviceType.Net;
     protected _client: net.Socket = new net.Socket();
 
     constructor(options: IDeviceOptions) {
