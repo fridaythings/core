@@ -100,10 +100,11 @@ namespace Core {
 
   export interface IDeviceInterface extends Core.IConnection {
     readonly id: string;
-    readonly model: string;
-    readonly name: string;
-    readonly version: string;
-    readonly commands: string[];
+    model: string;
+    name: string;
+    version: string;
+    state: IDeviceState;
+    commands: string[];
     send(...args: any[]): Promise<Core.IDataResponse>;
     send(command: string, params: any): Promise<Core.IDataResponse>;
     toObject(): Core.IDeviceObject;
