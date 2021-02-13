@@ -141,7 +141,6 @@ var Core;
         }
         toObject() {
             return {
-                eventId: this._eventId,
                 id: this.id,
                 host: this.host,
                 port: this.port,

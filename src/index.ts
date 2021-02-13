@@ -124,7 +124,6 @@ namespace Core {
   export interface IDeviceObject extends Core.IDeviceOptions {
     commands: string[];
     state: Core.IDeviceState;
-    eventId: number;
   }
 
   export interface IDeviceInterface extends Core.IConnection {
@@ -220,7 +219,6 @@ namespace Core {
 
     public toObject() {
       return {
-        eventId: this._eventId,
         id: this.id,
         host: this.host,
         port: this.port,
