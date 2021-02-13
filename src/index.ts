@@ -402,7 +402,7 @@ namespace Core {
               errors.push(new PayloadError(`No service attached: [service="${service}"]`));
             }
 
-            const device = service.devices.get(deviceId);
+            const device = serviceInstance?.devices.get(deviceId);
             if (!device) {
               errors.push(new PayloadError(`No device connected: [deviceId="${deviceId}"]`));
             }
@@ -415,7 +415,7 @@ namespace Core {
               return this.publish(Core.ServiceEventType.Error, { errors });
             }
 
-            device.send(command, params);
+            device?.send(command, params);
           });
         });
 

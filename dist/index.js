@@ -276,7 +276,7 @@ var Core;
                         if (!serviceInstance) {
                             errors.push(new PayloadError(`No service attached: [service="${service}"]`));
                         }
-                        const device = service.devices.get(deviceId);
+                        const device = serviceInstance === null || serviceInstance === void 0 ? void 0 : serviceInstance.devices.get(deviceId);
                         if (!device) {
                             errors.push(new PayloadError(`No device connected: [deviceId="${deviceId}"]`));
                         }
@@ -286,7 +286,7 @@ var Core;
                         if (errors.length > 0) {
                             return this.publish(Core.ServiceEventType.Error, { errors });
                         }
-                        device.send(command, params);
+                        device === null || device === void 0 ? void 0 : device.send(command, params);
                     });
                 });
                 this._services.forEach(service => {
