@@ -125,7 +125,9 @@ namespace Core {
   export interface IDeviceOptions extends Core.IConnectionOptions {
     host: string;
     port: number;
+
     id: string;
+    type: ServiceType;
     model: string;
     name: string;
     version: string;
@@ -133,16 +135,15 @@ namespace Core {
     state?: Core.IDeviceState;
   }
 
-  export enum ServiceType {
+  enum ServiceTypeEnum {
     Unknown = 'UnknownService',
-    Yeelight = 'YeelightService',
-    Zigbee = 'ZigbeeService',
   }
+
+  export type ServiceType = ServiceTypeEnum | string;
 
   export interface IDeviceObject extends Core.IDeviceOptions {
     commands: string[];
     state: Core.IDeviceState;
-    type: ServiceType;
   }
 
   export interface IDeviceInterface extends Core.IConnection {
@@ -166,7 +167,7 @@ namespace Core {
     protected _eventId: number = 0;
 
     protected _id: string;
-    protected _type: Core.ServiceType = Core.ServiceType.Unknown;
+    protected _type: Core.ServiceType = ServiceTypeEnum.Unknown;
     protected _model: string;
     protected _name: string;
     protected _version: string;
@@ -187,7 +188,6 @@ namespace Core {
       if (options.commands !== undefined) {
         this._commands = options.commands;
       }
-      console.log('this._type:', this._type);
     }
 
     protected onTimeout(id: number, callback: (error: Error) => void) {

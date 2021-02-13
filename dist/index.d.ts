@@ -2,29 +2,29 @@
 import { EventEmitter } from 'events';
 import net from 'net';
 declare namespace Core {
-    interface IKeyValue {
+    export interface IKeyValue {
         [key: string]: any;
     }
-    type Void = Promise<void> | void;
-    class F {
+    export type Void = Promise<void> | void;
+    export class F {
         private static Separator;
         static stringify(data: {
             [key: string]: any;
         }): string;
         static parseBuffer(buffer: Buffer, defaultValue?: Core.IKeyValue): Core.IKeyValue[];
     }
-    interface IConnectionOptions {
+    export interface IConnectionOptions {
         host?: string;
         port?: number;
     }
-    interface IConnection extends EventEmitter {
+    export interface IConnection extends EventEmitter {
         host: string;
         port: number;
         connect(): Promise<void>;
         disconnect(): void;
         send(...args: any[]): Promise<any>;
     }
-    enum ConnectionEventType {
+    export enum ConnectionEventType {
         Connection = "connection",
         Connect = "connect",
         Close = "close",
@@ -36,7 +36,7 @@ declare namespace Core {
         Ready = "ready",
         Timeout = "timeout"
     }
-    enum ServiceEventType {
+    export enum ServiceEventType {
         Error = "error",
         Connect = "connect",
         Disconnect = "disconnect",
@@ -45,13 +45,13 @@ declare namespace Core {
         DeviceChanged = "device-changed",
         DeviceRemoved = "device-removed"
     }
-    enum DeviceEventType {
+    export enum DeviceEventType {
         Connect = "connect",
         Disconnect = "close",
         Error = "error",
         Change = "change"
     }
-    class Connection extends EventEmitter implements IConnection {
+    export class Connection extends EventEmitter implements IConnection {
         protected _host: string;
         protected _port: number;
         constructor(options?: IConnectionOptions);
@@ -61,33 +61,32 @@ declare namespace Core {
         disconnect(): void;
         send(...args: any[]): Promise<any>;
     }
-    interface IDataResponse {
+    export interface IDataResponse {
         id: number;
         result: any;
     }
-    interface IDeviceState extends IKeyValue {
+    export interface IDeviceState extends IKeyValue {
     }
-    interface IDeviceOptions extends Core.IConnectionOptions {
+    export interface IDeviceOptions extends Core.IConnectionOptions {
         host: string;
         port: number;
         id: string;
+        type: ServiceType;
         model: string;
         name: string;
         version: string;
         commands?: string[];
         state?: Core.IDeviceState;
     }
-    enum ServiceType {
-        Unknown = "UnknownService",
-        Yeelight = "YeelightService",
-        Zigbee = "ZigbeeService"
+    enum ServiceTypeEnum {
+        Unknown = "UnknownService"
     }
-    interface IDeviceObject extends Core.IDeviceOptions {
+    export type ServiceType = ServiceTypeEnum | string;
+    export interface IDeviceObject extends Core.IDeviceOptions {
         commands: string[];
         state: Core.IDeviceState;
-        type: ServiceType;
     }
-    interface IDeviceInterface extends Core.IConnection {
+    export interface IDeviceInterface extends Core.IConnection {
         readonly id: string;
         model: string;
         name: string;
@@ -100,7 +99,7 @@ declare namespace Core {
         toObject(): Core.IDeviceObject;
         toString(): string;
     }
-    class Device extends Core.Connection implements IDeviceInterface {
+    export class Device extends Core.Connection implements IDeviceInterface {
         protected static RequestTimeout: number;
         protected _requestId: number;
         protected _eventId: number;
@@ -115,7 +114,7 @@ declare namespace Core {
         protected onTimeout(id: number, callback: (error: Error) => void): void;
         emit(event: string | symbol, ...args: any[]): boolean;
         get id(): string;
-        get type(): ServiceType;
+        get type(): string;
         get name(): string;
         set name(name: string);
         get model(): string;
@@ -131,7 +130,7 @@ declare namespace Core {
         disconnect(): void;
         toObject(): {
             id: string;
-            type: ServiceType;
+            type: string;
             host: string;
             port: number;
             model: string;
@@ -142,14 +141,14 @@ declare namespace Core {
         };
         toString(): string;
     }
-    class TCPDevice extends Core.Device {
+    export class TCPDevice extends Core.Device {
         protected _client: net.Socket;
         constructor(options: IDeviceOptions);
         connect(): Promise<void>;
         disconnect(): void;
         send(command: string, params?: any): Promise<Core.IDataResponse>;
     }
-    interface IService extends Core.IConnection {
+    export interface IService extends Core.IConnection {
         readonly devices: Map<string, Core.Device>;
         on(event: Core.ServiceEventType.Connect, listener: () => Core.Void): this;
         on(event: Core.ServiceEventType.Disconnect, listener: () => Core.Void): this;
@@ -158,11 +157,11 @@ declare namespace Core {
         on(event: Core.ServiceEventType.DeviceChanged, listener: (data: Core.IKeyValue) => Void): this;
         on(event: Core.ServiceEventType.DeviceRemoved, listener: (data: Core.IKeyValue) => Void): this;
     }
-    interface IServiceOptions {
+    export interface IServiceOptions {
         port?: number;
         host?: string;
     }
-    class Service extends Core.Connection implements Core.IService {
+    export class Service extends Core.Connection implements Core.IService {
         protected static readonly ScanInterval = 5000;
         protected readonly _devices: Map<string, Core.Device>;
         protected _timeouts: NodeJS.Timeout[];
@@ -173,7 +172,7 @@ declare namespace Core {
         connect(): Promise<void>;
         disconnect(): void;
     }
-    namespace TCP {
+    export namespace TCP {
         class PayloadError extends Error {
             toJSON(): {
                 name: string;
@@ -194,5 +193,6 @@ declare namespace Core {
             disconnect(): void;
         }
     }
+    export {};
 }
 export default Core;
