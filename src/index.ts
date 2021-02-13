@@ -428,28 +428,23 @@ namespace Core {
             const errors = [];
             const service = this._services.get(serviceName);
             if (!service) {
-              errors.push(new PayloadError(`No service attached: [service="${service}"]`));
+              errors.push(new PayloadError(`No service attached: [service="${serviceName}"]`));
             }
-
             if (!command) {
               errors.push(new PayloadError(`No command provided: [command=""]`));
             }
 
-            const isServiceCommand = Object.values(ServiceCommand).includes(command);
             const device = service?.devices.get(deviceId);
-            if (!device && !isServiceCommand) {
+            if (deviceId && !device) {
               errors.push(new PayloadError(`No device connected: [deviceId="${deviceId}"]`));
             }
 
             if (errors.length > 0) {
               return this.publish(Core.ServiceEventType.Error, { errors });
             }
+            if (!service) return;
 
-            if (isServiceCommand) {
-              return service?.send(command, params);
-            }
-
-            device?.send(command, params);
+            return device ? device.send(command, params) : service.send(command, params);
           });
         });
 

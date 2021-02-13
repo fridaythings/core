@@ -299,23 +299,21 @@ var Core;
                         const errors = [];
                         const service = this._services.get(serviceName);
                         if (!service) {
-                            errors.push(new PayloadError(`No service attached: [service="${service}"]`));
+                            errors.push(new PayloadError(`No service attached: [service="${serviceName}"]`));
                         }
                         if (!command) {
                             errors.push(new PayloadError(`No command provided: [command=""]`));
                         }
-                        const isServiceCommand = Object.values(ServiceCommand).includes(command);
                         const device = service === null || service === void 0 ? void 0 : service.devices.get(deviceId);
-                        if (!device && !isServiceCommand) {
+                        if (deviceId && !device) {
                             errors.push(new PayloadError(`No device connected: [deviceId="${deviceId}"]`));
                         }
                         if (errors.length > 0) {
                             return this.publish(Core.ServiceEventType.Error, { errors });
                         }
-                        if (isServiceCommand) {
-                            return service === null || service === void 0 ? void 0 : service.send(command, params);
-                        }
-                        device === null || device === void 0 ? void 0 : device.send(command, params);
+                        if (!service)
+                            return;
+                        return device ? device.send(command, params) : service.send(command, params);
                     });
                 });
                 this._services.forEach(service => {
