@@ -390,7 +390,8 @@ namespace Core {
 
           promises.push(
             service.connect(),
-            new Promise(resolve => service.once(Core.ServiceEventType.Connect, resolve))
+            new Promise(resolve => service.once(Core.ServiceEventType.Connect, resolve)),
+            console.log(`Service started: [${service.constructor}:${service.constructor.name}]`)
           );
         }
         await Promise.all(promises);

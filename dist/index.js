@@ -269,7 +269,7 @@ var Core;
                     service.on(Core.ServiceEventType.DeviceAdded, p => this.broadcast(Core.ServiceEventType.DeviceAdded, p));
                     service.on(Core.ServiceEventType.DeviceChanged, p => this.broadcast(Core.ServiceEventType.DeviceChanged, p));
                     service.on(Core.ServiceEventType.DeviceRemoved, p => this.broadcast(Core.ServiceEventType.DeviceRemoved, p));
-                    promises.push(service.connect(), new Promise(resolve => service.once(Core.ServiceEventType.Connect, resolve)));
+                    promises.push(service.connect(), new Promise(resolve => service.once(Core.ServiceEventType.Connect, resolve)), console.log(`Service started: [${service.constructor}:${service.constructor.name}]`));
                 }
                 await Promise.all(promises);
                 await new Promise(resolve => this._server.listen({ port: this._port, host: this._host }, resolve));
