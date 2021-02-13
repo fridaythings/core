@@ -7,6 +7,33 @@ const events_1 = require("events");
 const net_1 = __importDefault(require("net"));
 var Core;
 (function (Core) {
+    class F {
+        static stringify(data) {
+            try {
+                return JSON.stringify(data) + '\r\n';
+            }
+            catch (e) {
+                return '';
+            }
+        }
+        static parseBuffer(buffer, defaultValue = {}) {
+            const lines = buffer.toString().split(Core.F.Separator);
+            return lines.reduce((acc, line) => {
+                if (line) {
+                    try {
+                        const data = JSON.parse(line);
+                        acc.push(data);
+                    }
+                    catch (e) {
+                        acc.push(defaultValue);
+                    }
+                }
+                return acc;
+            }, []);
+        }
+    }
+    F.Separator = '\r\n';
+    Core.F = F;
     let ConnectionEventType;
     (function (ConnectionEventType) {
         ConnectionEventType["Connection"] = "connection";
@@ -201,87 +228,79 @@ var Core;
     Core.Service = Service;
     let TCP;
     (function (TCP) {
-        class F {
-            static deserialize(data) {
-                try {
-                    return JSON.stringify(data) + '\r\n';
-                }
-                catch (e) {
-                    console.error(data, e);
-                    return '';
-                }
-            }
-            static serialize(buffer) {
-                const lines = buffer.toString().split(Core.TCP.F.Separator);
-                return lines.reduce((acc, line) => {
-                    if (line) {
-                        try {
-                            const data = JSON.parse(line);
-                            acc.push(data);
-                        }
-                        catch (e) {
-                            console.error(line, e);
-                        }
-                    }
-                    return acc;
-                }, []);
-            }
-        }
-        F.Separator = '\r\n';
-        TCP.F = F;
-        class ServiceManager extends Core.Connection {
-            constructor(options) {
-                super(options);
-                this._server = new net_1.default.Server();
-                this._connections = new Set();
-                this._services = new Set(options.services);
-            }
-            broadcast(event, device, sockets = this._connections) {
-                for (const connection of sockets) {
-                    const data = TCP.F.deserialize({ event, date: new Date(), device });
-                    connection.write(data);
-                }
-            }
-            async connect() {
-                this._server.on(Core.ConnectionEventType.Connection, socket => {
-                    this._connections.add(socket);
-                    socket.on(Core.ConnectionEventType.End, () => this._connections.delete(socket));
-                    socket.on(Core.ConnectionEventType.Data, (buffer) => {
-                        const { deviceId, command, params } = JSON.parse(buffer.toString());
-                        if (!deviceId || !command) {
-                            console.error('No required params.');
-                        }
-                        for (const service of this._services) {
-                            const device = service.devices.get(deviceId);
-                            if (!device)
-                                return;
-                            device.send(command, params);
-                        }
-                    });
-                    for (const service of this._services) {
-                        service.devices.forEach(device => this.broadcast(Core.ServiceEventType.DeviceAdded, device.toObject(), new Set([socket])));
-                    }
-                });
-                // Initialize listener and run services
-                const promises = [];
-                for (const service of this._services) {
-                    service.on(Core.ServiceEventType.Error, error => this.broadcast(Core.ServiceEventType.Error, error));
-                    service.on(Core.ServiceEventType.DeviceAdded, p => this.broadcast(Core.ServiceEventType.DeviceAdded, p));
-                    service.on(Core.ServiceEventType.DeviceChanged, p => this.broadcast(Core.ServiceEventType.DeviceChanged, p));
-                    service.on(Core.ServiceEventType.DeviceRemoved, p => this.broadcast(Core.ServiceEventType.DeviceRemoved, p));
-                    promises.push(service.connect(), new Promise(resolve => service.once(Core.ServiceEventType.Connect, resolve)), console.log(`Service started: [${service.constructor.name}]`));
-                }
-                await Promise.all(promises);
-                await new Promise(resolve => this._server.listen({ port: this._port, host: this._host }, resolve));
-            }
-            disconnect() {
-                for (const service of this._services) {
-                    service.disconnect();
-                }
-                this.broadcast(Core.ServiceEventType.Disconnect, this._connections);
-            }
-        }
-        TCP.ServiceManager = ServiceManager;
+        // export class ServiceManager extends Core.Connection {
+        //   protected _services: Set<Core.Service>;
+        //   protected _server: net.Server = new net.Server();
+        //   protected _connections: Set<net.Socket> = new Set();
+        //
+        //   constructor(options: Core.TCP.IServiceManagerOptions) {
+        //     super(options);
+        //     this._services = new Set(options.services);
+        //   }
+        //
+        //   protected broadcast(
+        //     event: Core.ServiceEventType,
+        //     device: { [key: string]: any },
+        //     sockets: Set<net.Socket> = this._connections
+        //   ) {
+        //     for (const connection of sockets) {
+        //       const data = TCP.F.deserialize({ event, date: new Date(), device });
+        //       connection.write(data);
+        //     }
+        //   }
+        //
+        //   public async connect(): Promise<void> {
+        //     this._server.on(Core.ConnectionEventType.Connection, socket => {
+        //       this._connections.add(socket);
+        //
+        //       socket.on(Core.ConnectionEventType.End, () => this._connections.delete(socket));
+        //
+        //       socket.on(Core.ConnectionEventType.Data, (buffer: Buffer) => {
+        //         const { deviceId, command, params } = JSON.parse(buffer.toString());
+        //         if (!deviceId || !command) {
+        //           console.error('No required params.');
+        //         }
+        //
+        //         for (const service of this._services) {
+        //           const device = service.devices.get(deviceId);
+        //           if (!device) return;
+        //           device.send(command, params);
+        //         }
+        //       });
+        //
+        //       for (const service of this._services) {
+        //         service.devices.forEach(device =>
+        //           this.broadcast(Core.ServiceEventType.DeviceAdded, device.toObject(), new Set([socket]))
+        //         );
+        //       }
+        //     });
+        //
+        //     // Initialize listener and run services
+        //     const promises = [];
+        //     for (const service of this._services) {
+        //       service.on(Core.ServiceEventType.Error, error => this.broadcast(Core.ServiceEventType.Error, error));
+        //       service.on(Core.ServiceEventType.DeviceAdded, p => this.broadcast(Core.ServiceEventType.DeviceAdded, p));
+        //       service.on(Core.ServiceEventType.DeviceChanged, p => this.broadcast(Core.ServiceEventType.DeviceChanged, p));
+        //       service.on(Core.ServiceEventType.DeviceRemoved, p => this.broadcast(Core.ServiceEventType.DeviceRemoved, p));
+        //
+        //       promises.push(
+        //         service.connect(),
+        //         new Promise(resolve => service.once(Core.ServiceEventType.Connect, resolve)),
+        //         console.log(`Service starting: [${service.constructor.name}]`)
+        //       );
+        //     }
+        //     await Promise.all(promises);
+        //     await new Promise(resolve => this._server.listen({ port: this._port, host: this._host }, resolve));
+        //   }
+        //
+        //   public disconnect() {
+        //     for (const service of this._services) {
+        //       service.disconnect();
+        //     }
+        //
+        //     this.broadcast(Core.ServiceEventType.Disconnect, this._connections);
+        //   }
+        // }
         class ServiceClient extends Core.Connection {
             constructor(options) {
                 super(options);
@@ -292,7 +311,7 @@ var Core;
                 this._client.on(Core.ConnectionEventType.Error, this.emit.bind(this, Core.ServiceEventType.Error));
                 this._client.on(Core.ConnectionEventType.Close, this.emit.bind(this, Core.ServiceEventType.Disconnect));
                 this._client.on(Core.ConnectionEventType.Data, buffer => {
-                    TCP.F.serialize(buffer).forEach(data => this.emit(Core.ServiceEventType.Data, data));
+                    Core.F.parseBuffer(buffer).forEach(data => this.emit(Core.ServiceEventType.Data, data));
                 });
             }
             disconnect() {
@@ -300,8 +319,8 @@ var Core;
                 this.removeAllListeners();
             }
             async send(deviceId, command, params) {
-                const data = TCP.F.deserialize({ deviceId, command, params });
-                return new Promise(resolve => this._client.write(data, resolve));
+                const data = Core.F.stringify({ deviceId, command, params });
+                await new Promise(resolve => this._client.write(data, resolve));
             }
         }
         TCP.ServiceClient = ServiceClient;
