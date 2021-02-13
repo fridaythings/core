@@ -250,10 +250,9 @@ var Core;
             throw new Error(`No "send" implementation for service: [port: ${this._port}]`);
         }
         async connect() {
-            this.on(Core.ServiceEventType.Connect, async () => {
-                await this.scan();
-                const timeoutId = setInterval(this.scan.bind(this), Service.ScanInterval);
-                this._timeouts.push(timeoutId);
+            this.once(Core.ServiceEventType.Disconnect, () => {
+                const intervalId = setInterval(() => this.connect(), Core.Service.ScanInterval);
+                this.once(Core.ServiceEventType.Connect, () => clearInterval(intervalId));
             });
         }
         disconnect() {
