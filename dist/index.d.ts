@@ -165,7 +165,7 @@ declare namespace Core {
     }
     namespace TCP {
         class PayloadError extends Error {
-            toString(): string;
+            toJSON(): IKeyValue;
         }
         interface IServiceManagerOptions extends Core.IConnectionOptions {
             port: number;
