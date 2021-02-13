@@ -360,7 +360,7 @@ namespace Core {
     export class PayloadError extends Error {
       toJSON() {
         return {
-          name: PayloadError.constructor.name,
+          name: 'PayloadError',
           message: this.message,
           stack: this.stack,
         };
