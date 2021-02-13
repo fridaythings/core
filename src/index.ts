@@ -384,7 +384,7 @@ namespace Core {
         });
       }
 
-      protected publish(event: Core.ServiceEventType, payload?: Core.IKeyValue | PayloadError) {
+      protected publish(event: Core.ServiceEventType, payload?: Core.IKeyValue | PayloadError[]) {
         const data = Core.F.stringify({ event, date: new Date(), payload });
         this._client.write(data);
       }
@@ -396,27 +396,23 @@ namespace Core {
           data.forEach(item => {
             const { service, deviceId, command, params } = item;
 
+            const errors = [];
             const serviceInstance = this._services.get(service);
             if (!serviceInstance) {
-              return this.publish(
-                Core.ServiceEventType.Error,
-                new PayloadError(`No service attached: [service="${service}"]`)
-              );
+              errors.push(new PayloadError(`No service attached: [service="${service}"]`));
             }
 
             const device = service.devices.get(deviceId);
             if (!device) {
-              return this.publish(
-                Core.ServiceEventType.Error,
-                new PayloadError(`No device connected: [deviceId="${deviceId}"]`)
-              );
+              errors.push(new PayloadError(`No device connected: [deviceId="${deviceId}"]`));
             }
 
             if (!command) {
-              return this.publish(
-                Core.ServiceEventType.Error,
-                new PayloadError(`No command provided: [command=""]`)
-              );
+              errors.push(new PayloadError(`No command provided: [command=""]`));
+            }
+
+            if (errors.length > 0) {
+              return this.publish(Core.ServiceEventType.Error, { errors });
             }
 
             device.send(command, params);

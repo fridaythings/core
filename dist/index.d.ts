@@ -179,7 +179,7 @@ declare namespace Core {
             protected _services: Map<string, Core.Service>;
             protected _client: net.Socket;
             constructor(options: Core.TCP.IServiceManagerOptions);
-            protected publish(event: Core.ServiceEventType, payload?: Core.IKeyValue | PayloadError): void;
+            protected publish(event: Core.ServiceEventType, payload?: Core.IKeyValue | PayloadError[]): void;
             connect(): Promise<void>;
             disconnect(): void;
         }
