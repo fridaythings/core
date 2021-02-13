@@ -93,18 +93,16 @@ var Core;
         }
     }
     Core.Connection = Connection;
-    let ServiceType;
-    (function (ServiceType) {
-        ServiceType["Unknown"] = "UnknownService";
-        ServiceType["Yeelight"] = "YeelightService";
-        ServiceType["Zigbee"] = "ZigbeeService";
-    })(ServiceType = Core.ServiceType || (Core.ServiceType = {}));
+    let ServiceTypeEnum;
+    (function (ServiceTypeEnum) {
+        ServiceTypeEnum["Unknown"] = "UnknownService";
+    })(ServiceTypeEnum || (ServiceTypeEnum = {}));
     class Device extends Core.Connection {
         constructor(options) {
             super(options);
             this._requestId = 0;
             this._eventId = 0;
-            this._type = Core.ServiceType.Unknown;
+            this._type = ServiceTypeEnum.Unknown;
             this._state = {};
             this._commands = [];
             this._id = options.id;
@@ -117,7 +115,6 @@ var Core;
             if (options.commands !== undefined) {
                 this._commands = options.commands;
             }
-            console.log('this._type:', this._type);
         }
         onTimeout(id, callback) {
             const timeoutId = setTimeout(() => {
