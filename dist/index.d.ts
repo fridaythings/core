@@ -44,6 +44,7 @@ declare namespace Core {
         Connect = "connect",
         Disconnect = "disconnect",
         Data = "data",
+        PermitJoin = "PermitJoin",
         DeviceAdded = "device-added",
         DeviceChanged = "device-changed",
         DeviceRemoved = "device-removed"
@@ -194,7 +195,9 @@ declare namespace Core {
             protected _services: Map<string, Core.Service>;
             protected _client: net.Socket;
             constructor(options: Core.TCP.IServiceManagerOptions);
-            protected publish(event: Core.ServiceEventType, payload?: Core.IKeyValue | PayloadError[]): void;
+            protected publish(event: Core.ServiceEventType, payload?: Core.IKeyValue | {
+                errors: PayloadError[];
+            }): void;
             connect(): Promise<void>;
             disconnect(): void;
         }

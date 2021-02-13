@@ -64,6 +64,7 @@ var Core;
         ServiceEventType["Connect"] = "connect";
         ServiceEventType["Disconnect"] = "disconnect";
         ServiceEventType["Data"] = "data";
+        ServiceEventType["PermitJoin"] = "PermitJoin";
         ServiceEventType["DeviceAdded"] = "device-added";
         ServiceEventType["DeviceChanged"] = "device-changed";
         ServiceEventType["DeviceRemoved"] = "device-removed";
@@ -327,6 +328,9 @@ var Core;
                         this.publish(Core.ServiceEventType.Error, {
                             errors: [new PayloadError(error.message)],
                         });
+                    });
+                    service.on(Core.ServiceEventType.PermitJoin, service => {
+                        this.publish(Core.ServiceEventType.PermitJoin, { service });
                     });
                     service.on(Core.ServiceEventType.DeviceAdded, device => {
                         this.publish(Core.ServiceEventType.DeviceAdded, { device });

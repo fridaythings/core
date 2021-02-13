@@ -77,6 +77,7 @@ namespace Core {
     Connect = 'connect',
     Disconnect = 'disconnect',
     Data = 'data',
+    PermitJoin = 'PermitJoin',
     DeviceAdded = 'device-added',
     DeviceChanged = 'device-changed',
     DeviceRemoved = 'device-removed',
@@ -413,7 +414,10 @@ namespace Core {
         });
       }
 
-      protected publish(event: Core.ServiceEventType, payload?: Core.IKeyValue | PayloadError[]) {
+      protected publish(
+        event: Core.ServiceEventType,
+        payload?: Core.IKeyValue | { errors: PayloadError[] }
+      ) {
         const data = Core.F.stringify({ event, date: new Date(), payload });
         this._client.write(data);
       }
@@ -460,6 +464,9 @@ namespace Core {
             this.publish(Core.ServiceEventType.Error, {
               errors: [new PayloadError(error.message)],
             });
+          });
+          service.on(Core.ServiceEventType.PermitJoin, service => {
+            this.publish(Core.ServiceEventType.PermitJoin, { service });
           });
           service.on(Core.ServiceEventType.DeviceAdded, device => {
             this.publish(Core.ServiceEventType.DeviceAdded, { device });
