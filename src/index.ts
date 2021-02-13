@@ -357,6 +357,12 @@ namespace Core {
   }
 
   export namespace TCP {
+    export class PayloadError extends Error {
+      toString() {
+        return JSON.stringify({ name: this.name, message: this.message, stack: this.stack });
+      }
+    }
+
     export interface IServiceManagerOptions extends Core.IConnectionOptions {
       port: number;
       services: Core.Service[];
@@ -374,7 +380,7 @@ namespace Core {
         });
       }
 
-      protected publish(event: Core.ServiceEventType, payload?: Core.IKeyValue | Error) {
+      protected publish(event: Core.ServiceEventType, payload?: Core.IKeyValue | PayloadError) {
         const data = Core.F.stringify({ event, date: new Date(), payload });
         this._client.write(data);
       }
@@ -390,7 +396,7 @@ namespace Core {
             if (!serviceInstance) {
               return this.publish(
                 Core.ServiceEventType.Error,
-                new Error(`No service attached: [service="${service}"]`)
+                new PayloadError(`No service attached: [service="${service}"]`)
               );
             }
 
@@ -398,14 +404,14 @@ namespace Core {
             if (!device) {
               return this.publish(
                 Core.ServiceEventType.Error,
-                new Error(`No device connected: [deviceId="${deviceId}"]`)
+                new PayloadError(`No device connected: [deviceId="${deviceId}"]`)
               );
             }
 
             if (!command) {
               return this.publish(
                 Core.ServiceEventType.Error,
-                new Error(`No command provided: [command=""]`)
+                new PayloadError(`No command provided: [command=""]`)
               );
             }
 

@@ -242,6 +242,12 @@ var Core;
     Core.Service = Service;
     let TCP;
     (function (TCP) {
+        class PayloadError extends Error {
+            toString() {
+                return JSON.stringify({ name: this.name, message: this.message, stack: this.stack });
+            }
+        }
+        TCP.PayloadError = PayloadError;
         class ServiceManager extends Core.Connection {
             constructor(options) {
                 super(options);
@@ -263,14 +269,14 @@ var Core;
                         const { service, deviceId, command, params } = item;
                         const serviceInstance = this._services.get(service);
                         if (!serviceInstance) {
-                            return this.publish(Core.ServiceEventType.Error, new Error(`No service attached: [service="${service}"]`));
+                            return this.publish(Core.ServiceEventType.Error, new PayloadError(`No service attached: [service="${service}"]`));
                         }
                         const device = service.devices.get(deviceId);
                         if (!device) {
-                            return this.publish(Core.ServiceEventType.Error, new Error(`No device connected: [deviceId="${deviceId}"]`));
+                            return this.publish(Core.ServiceEventType.Error, new PayloadError(`No device connected: [deviceId="${deviceId}"]`));
                         }
                         if (!command) {
-                            return this.publish(Core.ServiceEventType.Error, new Error(`No command provided: [command=""]`));
+                            return this.publish(Core.ServiceEventType.Error, new PayloadError(`No command provided: [command=""]`));
                         }
                         device.send(command, params);
                     });
