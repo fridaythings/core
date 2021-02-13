@@ -244,12 +244,11 @@ var Core;
     (function (TCP) {
         class PayloadError extends Error {
             toJSON() {
-                const alt = {};
-                Object.getOwnPropertyNames(this).forEach(key => {
-                    // @ts-ignore
-                    alt[key] = this[key];
-                }, this);
-                return alt;
+                return {
+                    name: this.name,
+                    message: this.message,
+                    stack: this.name,
+                };
             }
         }
         TCP.PayloadError = PayloadError;

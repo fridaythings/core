@@ -359,14 +359,11 @@ namespace Core {
   export namespace TCP {
     export class PayloadError extends Error {
       toJSON() {
-        const alt: IKeyValue = {};
-
-        Object.getOwnPropertyNames(this).forEach(key => {
-          // @ts-ignore
-          alt[key] = this[key];
-        }, this);
-
-        return alt;
+        return {
+          name: this.name,
+          message: this.message,
+          stack: this.name,
+        };
       }
     }
 
