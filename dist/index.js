@@ -330,11 +330,18 @@ var Core;
                 });
                 const promises = [];
                 this._services.forEach(service => {
+                    service.on(Core.ServiceEventType.Disconnect, error => {
+                        this.publish(Core.ServiceEventType.Disconnect, {
+                            service: { type: service.constructor.name, error },
+                        });
+                    });
                     service.on(Core.ServiceEventType.Error, error => {
                         this.publish(Core.ServiceEventType.Error, { errors: [new PayloadError(error)] });
                     });
                     service.on(Core.ServiceEventType.PermitJoin, service => {
-                        this.publish(Core.ServiceEventType.PermitJoin, { service });
+                        this.publish(Core.ServiceEventType.PermitJoin, {
+                            service: { type: service.constructor.name, ...service },
+                        });
                     });
                     service.on(Core.ServiceEventType.DeviceAdded, device => {
                         this.publish(Core.ServiceEventType.DeviceAdded, { device });
