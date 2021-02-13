@@ -258,6 +258,7 @@ var Core;
         }
         disconnect() {
             this._devices.forEach(device => device.disconnect());
+            this._devices.clear();
             this._timeouts.forEach(clearTimeout);
             this._timeouts = [];
             this.removeAllListeners();
