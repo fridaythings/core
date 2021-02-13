@@ -421,23 +421,25 @@ namespace Core {
 
         this._services.forEach(service => {
           service.devices.forEach(device => {
-            this.publish(Core.ServiceEventType.DeviceAdded, device.toObject());
+            this.publish(Core.ServiceEventType.DeviceAdded, { device: device.toObject() });
           });
         });
 
         const promises: any[] = [];
         this._services.forEach(service => {
           service.on(Core.ServiceEventType.Error, error => {
-            this.publish(Core.ServiceEventType.Error, error);
+            this.publish(Core.ServiceEventType.Error, {
+              errors: [new PayloadError(error.message)],
+            });
           });
-          service.on(Core.ServiceEventType.DeviceAdded, data => {
-            this.publish(Core.ServiceEventType.DeviceAdded, data);
+          service.on(Core.ServiceEventType.DeviceAdded, device => {
+            this.publish(Core.ServiceEventType.DeviceAdded, { device });
           });
-          service.on(Core.ServiceEventType.DeviceChanged, data => {
-            this.publish(Core.ServiceEventType.DeviceChanged, data);
+          service.on(Core.ServiceEventType.DeviceChanged, device => {
+            this.publish(Core.ServiceEventType.DeviceChanged, { device });
           });
-          service.on(Core.ServiceEventType.DeviceRemoved, data => {
-            this.publish(Core.ServiceEventType.DeviceRemoved, data);
+          service.on(Core.ServiceEventType.DeviceRemoved, device => {
+            this.publish(Core.ServiceEventType.DeviceRemoved, { device });
           });
 
           promises.push(
