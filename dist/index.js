@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const events_1 = require("events");
 const net_1 = __importDefault(require("net"));
+const fs_1 = __importDefault(require("fs"));
 var Core;
 (function (Core) {
     class F {
@@ -34,6 +35,16 @@ var Core;
     }
     F.Separator = '\r\n';
     Core.F = F;
+    class SerialPort {
+        static findZigbee() {
+            const defaultDevices = ['ttyACM0', 'tty.usb'];
+            const ttyModem = fs_1.default
+                .readdirSync('/dev')
+                .find(fileName => defaultDevices.some(path => fileName.startsWith(path)));
+            return ttyModem ? `/dev/${ttyModem}` : undefined;
+        }
+    }
+    Core.SerialPort = SerialPort;
     let ConnectionEventType;
     (function (ConnectionEventType) {
         ConnectionEventType["Connection"] = "connection";

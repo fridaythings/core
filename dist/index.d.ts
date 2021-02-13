@@ -13,6 +13,9 @@ declare namespace Core {
         }): string;
         static parseBuffer(buffer: Buffer, defaultValue?: Core.IKeyValue): Core.IKeyValue[];
     }
+    export class SerialPort {
+        static findZigbee(): string | undefined;
+    }
     export interface IConnectionOptions {
         host?: string;
         port?: number;

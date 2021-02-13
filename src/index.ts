@@ -2,6 +2,7 @@ import { EventEmitter } from 'events';
 import net from 'net';
 import { serialize } from 'v8';
 import * as util from 'util';
+import fs from 'fs';
 
 namespace Core {
   export interface IKeyValue {
@@ -34,6 +35,16 @@ namespace Core {
         }
         return acc;
       }, <Core.IKeyValue[]>[]);
+    }
+  }
+
+  export class SerialPort {
+    static findZigbee(): string | undefined {
+      const defaultDevices = ['ttyACM0', 'tty.usb'];
+      const ttyModem = fs
+        .readdirSync('/dev')
+        .find(fileName => defaultDevices.some(path => fileName.startsWith(path)));
+      return ttyModem ? `/dev/${ttyModem}` : undefined;
     }
   }
 
