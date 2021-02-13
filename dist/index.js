@@ -269,6 +269,12 @@ var Core;
     let TCP;
     (function (TCP) {
         class PayloadError extends Error {
+            constructor(messageOrError) {
+                super(messageOrError instanceof Error ? messageOrError.message : messageOrError);
+                if (messageOrError instanceof Error) {
+                    this.stack = messageOrError.stack;
+                }
+            }
             toJSON() {
                 return {
                     name: 'PayloadError',
@@ -325,9 +331,7 @@ var Core;
                 const promises = [];
                 this._services.forEach(service => {
                     service.on(Core.ServiceEventType.Error, error => {
-                        this.publish(Core.ServiceEventType.Error, {
-                            errors: [new PayloadError(error.message)],
-                        });
+                        this.publish(Core.ServiceEventType.Error, { errors: [new PayloadError(error)] });
                     });
                     service.on(Core.ServiceEventType.PermitJoin, service => {
                         this.publish(Core.ServiceEventType.PermitJoin, { service });

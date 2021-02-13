@@ -388,6 +388,12 @@ namespace Core {
 
   export namespace TCP {
     export class PayloadError extends Error {
+      constructor(messageOrError: string | Error) {
+        super(messageOrError instanceof Error ? messageOrError.message : messageOrError);
+        if (messageOrError instanceof Error) {
+          this.stack = messageOrError.stack;
+        }
+      }
       toJSON() {
         return {
           name: 'PayloadError',
@@ -461,9 +467,7 @@ namespace Core {
         const promises: any[] = [];
         this._services.forEach(service => {
           service.on(Core.ServiceEventType.Error, error => {
-            this.publish(Core.ServiceEventType.Error, {
-              errors: [new PayloadError(error.message)],
-            });
+            this.publish(Core.ServiceEventType.Error, { errors: [new PayloadError(error)] });
           });
           service.on(Core.ServiceEventType.PermitJoin, service => {
             this.publish(Core.ServiceEventType.PermitJoin, { service });
