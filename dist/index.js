@@ -323,13 +323,11 @@ var Core;
                         return device ? device.send(command, params) : service.send(command, params);
                     });
                 });
+                const promises = [];
                 this._services.forEach(service => {
                     service.devices.forEach(device => {
                         this.publish(Core.ServiceEventType.DeviceAdded, { device: device.toObject() });
                     });
-                });
-                const promises = [];
-                this._services.forEach(service => {
                     service.on(Core.ServiceEventType.Disconnect, error => {
                         this.publish(Core.ServiceEventType.Disconnect, {
                             service: { type: service.constructor.name, error },
