@@ -97,11 +97,16 @@ declare namespace Core {
         protected onTimeout(id: number, callback: (error: Error) => void): void;
         emit(event: string | symbol, ...args: any[]): boolean;
         get id(): string;
-        get model(): string;
         get name(): string;
+        set name(name: string);
+        get model(): string;
+        set model(model: string);
         get version(): string;
-        get commands(): string[];
+        set version(version: string);
         get state(): IDeviceState;
+        set state(state: IDeviceState);
+        get commands(): string[];
+        set commands(commands: string[]);
         send(command: string, params?: any): Promise<IDataResponse>;
         connect(): Promise<void>;
         disconnect(): void;

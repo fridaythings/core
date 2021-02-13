@@ -184,24 +184,44 @@ namespace Core {
       return this._id;
     }
 
+    public get name() {
+      return this._name;
+    }
+
+    public set name(name) {
+      this._name = name;
+    }
+
     public get model() {
       return this._model;
     }
 
-    public get name() {
-      return this._name;
+    public set model(model) {
+      this._model = model;
     }
 
     public get version() {
       return this._version;
     }
 
-    public get commands() {
-      return this._commands;
+    public set version(version) {
+      this._version = version;
     }
 
     public get state() {
       return this._state;
+    }
+
+    public set state(state) {
+      this._state = state;
+    }
+
+    public get commands() {
+      return this._commands;
+    }
+
+    public set commands(commands) {
+      this._commands = commands;
     }
 
     public async send(command: string, params?: any): Promise<IDataResponse> {

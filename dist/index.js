@@ -114,20 +114,35 @@ var Core;
         get id() {
             return this._id;
         }
+        get name() {
+            return this._name;
+        }
+        set name(name) {
+            this._name = name;
+        }
         get model() {
             return this._model;
         }
-        get name() {
-            return this._name;
+        set model(model) {
+            this._model = model;
         }
         get version() {
             return this._version;
         }
-        get commands() {
-            return this._commands;
+        set version(version) {
+            this._version = version;
         }
         get state() {
             return this._state;
+        }
+        set state(state) {
+            this._state = state;
+        }
+        get commands() {
+            return this._commands;
+        }
+        set commands(commands) {
+            this._commands = commands;
         }
         async send(command, params) {
             this._requestId++;
@@ -141,14 +156,14 @@ var Core;
         }
         toObject() {
             return {
-                id: this.id,
-                host: this.host,
-                port: this.port,
-                model: this.model,
-                name: this.name,
-                version: this.version,
-                commands: this.commands,
-                state: this.state,
+                id: this._id,
+                host: this._host,
+                port: this._port,
+                model: this._model,
+                name: this._name,
+                version: this._version,
+                commands: this._commands,
+                state: this._state,
             };
         }
         toString() {
