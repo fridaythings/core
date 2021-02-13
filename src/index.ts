@@ -4,6 +4,37 @@ import { serialize } from 'v8';
 import * as util from 'util';
 
 namespace Core {
+  export interface IKeyValue {
+    [key: string]: any;
+  }
+
+  export class F {
+    private static Separator = '\r\n';
+
+    public static stringify(data: { [key: string]: any }): string {
+      try {
+        return JSON.stringify(data) + '\r\n';
+      } catch (e) {
+        return '';
+      }
+    }
+
+    public static parseJson(buffer: Buffer, defaultValue: Core.IKeyValue = {}): Core.IKeyValue[] {
+      const lines = buffer.toString().split(Core.TCP.F.Separator);
+      return lines.reduce((acc, line) => {
+        if (line) {
+          try {
+            const data = JSON.parse(line);
+            acc.push(data);
+          } catch (e) {
+            acc.push(defaultValue);
+          }
+        }
+        return acc;
+      }, <Core.IKeyValue[]>[]);
+    }
+  }
+
   export interface IConnectionOptions {
     host?: string;
     port?: number;
@@ -77,9 +108,7 @@ namespace Core {
     result: any;
   }
 
-  export interface IDeviceState {
-    [key: string]: any;
-  }
+  export interface IDeviceState extends IKeyValue {}
 
   export interface IDeviceOptions extends Core.IConnectionOptions {
     host: string;
@@ -300,34 +329,6 @@ namespace Core {
   }
 
   export namespace TCP {
-    export class F {
-      private static Separator = '\r\n';
-
-      public static deserialize(data: { [key: string]: any }): string {
-        try {
-          return JSON.stringify(data) + '\r\n';
-        } catch (e) {
-          console.error(data, e);
-          return '';
-        }
-      }
-
-      public static serialize(buffer: Buffer): any[] {
-        const lines = buffer.toString().split(Core.TCP.F.Separator);
-        return lines.reduce((acc, line) => {
-          if (line) {
-            try {
-              const data = JSON.parse(line);
-              acc.push(data);
-            } catch (e) {
-              console.error(line, e);
-            }
-          }
-          return acc;
-        }, <any[]>[]);
-      }
-    }
-
     export interface IServiceManagerOptions extends Core.IConnectionOptions {
       port: number;
       services: Core.Service[];
@@ -391,7 +392,7 @@ namespace Core {
           promises.push(
             service.connect(),
             new Promise(resolve => service.once(Core.ServiceEventType.Connect, resolve)),
-            console.log(`Service started: [${service.constructor.name}]`)
+            console.log(`Service starting: [${service.constructor.name}]`)
           );
         }
         await Promise.all(promises);
@@ -429,9 +430,9 @@ namespace Core {
         this.removeAllListeners();
       }
 
-      async send(deviceId: string, command: string, params?: any): Promise<any> {
-        const data = TCP.F.deserialize({ deviceId, command, params });
-        return new Promise(resolve => this._client.write(data, resolve));
+      async send(deviceId: string, command: string, params?: any): Promise<void> {
+        const data = Core.F.stringify({ deviceId, command, params });
+        await new Promise(resolve => this._client.write(data, resolve));
       }
     }
   }
