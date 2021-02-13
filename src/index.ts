@@ -1,7 +1,5 @@
 import { EventEmitter } from 'events';
 import net from 'net';
-import { serialize } from 'v8';
-import * as util from 'util';
 import fs from 'fs';
 
 namespace Core {
@@ -89,6 +87,10 @@ namespace Core {
     Disconnect = 'close',
     Error = 'error',
     Change = 'change',
+  }
+
+  export enum ServiceCommand {
+    PermitJoin = 'permitJoin',
   }
 
   export class Connection extends EventEmitter implements IConnection {
@@ -421,25 +423,30 @@ namespace Core {
         this._client.on(Core.ConnectionEventType.Data, buffer => {
           const data = Core.F.parseBuffer(buffer);
           data.forEach(item => {
-            const { service, deviceId, command, params } = item;
+            const { service: serviceName, deviceId, command, params } = item;
 
             const errors = [];
-            const serviceInstance = this._services.get(service);
-            if (!serviceInstance) {
+            const service = this._services.get(serviceName);
+            if (!service) {
               errors.push(new PayloadError(`No service attached: [service="${service}"]`));
-            }
-
-            const device = serviceInstance?.devices.get(deviceId);
-            if (!device) {
-              errors.push(new PayloadError(`No device connected: [deviceId="${deviceId}"]`));
             }
 
             if (!command) {
               errors.push(new PayloadError(`No command provided: [command=""]`));
             }
 
+            const isServiceCommand = Object.values(ServiceCommand).includes(command);
+            const device = service?.devices.get(deviceId);
+            if (!device && !isServiceCommand) {
+              errors.push(new PayloadError(`No device connected: [deviceId="${deviceId}"]`));
+            }
+
             if (errors.length > 0) {
               return this.publish(Core.ServiceEventType.Error, { errors });
+            }
+
+            if (isServiceCommand) {
+              return service?.send(command, params);
             }
 
             device?.send(command, params);

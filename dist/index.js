@@ -75,6 +75,10 @@ var Core;
         DeviceEventType["Error"] = "error";
         DeviceEventType["Change"] = "change";
     })(DeviceEventType = Core.DeviceEventType || (Core.DeviceEventType = {}));
+    let ServiceCommand;
+    (function (ServiceCommand) {
+        ServiceCommand["PermitJoin"] = "permitJoin";
+    })(ServiceCommand = Core.ServiceCommand || (Core.ServiceCommand = {}));
     class Connection extends events_1.EventEmitter {
         constructor(options = {}) {
             super();
@@ -291,21 +295,25 @@ var Core;
                 this._client.on(Core.ConnectionEventType.Data, buffer => {
                     const data = Core.F.parseBuffer(buffer);
                     data.forEach(item => {
-                        const { service, deviceId, command, params } = item;
+                        const { service: serviceName, deviceId, command, params } = item;
                         const errors = [];
-                        const serviceInstance = this._services.get(service);
-                        if (!serviceInstance) {
+                        const service = this._services.get(serviceName);
+                        if (!service) {
                             errors.push(new PayloadError(`No service attached: [service="${service}"]`));
-                        }
-                        const device = serviceInstance === null || serviceInstance === void 0 ? void 0 : serviceInstance.devices.get(deviceId);
-                        if (!device) {
-                            errors.push(new PayloadError(`No device connected: [deviceId="${deviceId}"]`));
                         }
                         if (!command) {
                             errors.push(new PayloadError(`No command provided: [command=""]`));
                         }
+                        const isServiceCommand = Object.values(ServiceCommand).includes(command);
+                        const device = service === null || service === void 0 ? void 0 : service.devices.get(deviceId);
+                        if (!device && !isServiceCommand) {
+                            errors.push(new PayloadError(`No device connected: [deviceId="${deviceId}"]`));
+                        }
                         if (errors.length > 0) {
                             return this.publish(Core.ServiceEventType.Error, { errors });
+                        }
+                        if (isServiceCommand) {
+                            return service === null || service === void 0 ? void 0 : service.send(command, params);
                         }
                         device === null || device === void 0 ? void 0 : device.send(command, params);
                     });
