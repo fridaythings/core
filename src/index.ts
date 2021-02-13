@@ -181,6 +181,7 @@ namespace Core {
       this._model = options.model;
       this._name = options.name;
       this._version = options.version;
+      this._type = options.type;
 
       if (options.state !== undefined) {
         this._state = options.state;
