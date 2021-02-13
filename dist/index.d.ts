@@ -77,9 +77,15 @@ declare namespace Core {
         commands?: string[];
         state?: Core.IDeviceState;
     }
+    enum DeviceType {
+        Unknown = "unknown",
+        Net = "net",
+        Zigbee = "zigbee"
+    }
     interface IDeviceObject extends Core.IDeviceOptions {
         commands: string[];
         state: Core.IDeviceState;
+        type: DeviceType;
     }
     interface IDeviceInterface extends Core.IConnection {
         readonly id: string;
@@ -88,6 +94,7 @@ declare namespace Core {
         version: string;
         state: IDeviceState;
         commands: string[];
+        type: DeviceType;
         send(...args: any[]): Promise<Core.IDataResponse>;
         send(command: string, params: any): Promise<Core.IDataResponse>;
         toObject(): Core.IDeviceObject;
@@ -98,6 +105,7 @@ declare namespace Core {
         protected _requestId: number;
         protected _eventId: number;
         protected _id: string;
+        protected _type: Core.DeviceType;
         protected _model: string;
         protected _name: string;
         protected _version: string;
@@ -107,6 +115,7 @@ declare namespace Core {
         protected onTimeout(id: number, callback: (error: Error) => void): void;
         emit(event: string | symbol, ...args: any[]): boolean;
         get id(): string;
+        get type(): DeviceType;
         get name(): string;
         set name(name: string);
         get model(): string;
@@ -122,6 +131,7 @@ declare namespace Core {
         disconnect(): void;
         toObject(): {
             id: string;
+            type: DeviceType;
             host: string;
             port: number;
             model: string;
@@ -133,6 +143,7 @@ declare namespace Core {
         toString(): string;
     }
     class TCPDevice extends Core.Device {
+        protected _type: Core.DeviceType;
         protected _client: net.Socket;
         constructor(options: IDeviceOptions);
         connect(): Promise<void>;
