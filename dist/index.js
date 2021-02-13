@@ -245,9 +245,9 @@ var Core;
         class PayloadError extends Error {
             toJSON() {
                 return {
-                    name: this.name,
+                    name: PayloadError.constructor.name,
                     message: this.message,
-                    stack: this.name,
+                    stack: this.stack,
                 };
             }
         }

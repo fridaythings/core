@@ -168,7 +168,7 @@ declare namespace Core {
             toJSON(): {
                 name: string;
                 message: string;
-                stack: string;
+                stack: string | undefined;
             };
         }
         interface IServiceManagerOptions extends Core.IConnectionOptions {
