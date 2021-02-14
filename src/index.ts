@@ -420,7 +420,7 @@ namespace Core {
         });
       }
 
-      protected publish(
+      public publish(
         event: Core.ServiceEventType,
         payload?: Core.IKeyValue | { errors: PayloadError[] }
       ) {
