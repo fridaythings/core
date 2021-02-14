@@ -370,7 +370,7 @@ namespace Core {
     }
 
     public async connect(): Promise<void> {
-      this.once(Core.ServiceEventType.Disconnect, () => {
+      this.on(Core.ServiceEventType.Disconnect, () => {
         const intervalId = setInterval(() => this.connect(), Core.Service.ScanInterval);
         this.once(Core.ServiceEventType.Connect, () => clearInterval(intervalId));
       });
