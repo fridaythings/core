@@ -299,6 +299,7 @@ var Core;
             }
             async connect() {
                 this._client.connect({ port: this._port, host: this._host });
+                this._client.on(Core.ConnectionEventType.Error, error => this.publish(Core.ServiceEventType.Error, { errors: new Core.TCP.PayloadError(error) }));
                 this._client.on(Core.ConnectionEventType.Data, buffer => {
                     const data = Core.F.parseBuffer(buffer);
                     data.forEach(item => {
