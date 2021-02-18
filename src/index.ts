@@ -424,6 +424,7 @@ namespace Core {
         event: Core.ServiceEventType,
         payload?: Core.IKeyValue | { errors: PayloadError[] }
       ) {
+        if (!this._client.writable) return;
         const data = Core.F.stringify({ event, date: new Date(), payload });
         this._client.write(data);
       }
