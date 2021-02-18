@@ -1,5 +1,3 @@
 .idea
-.prettierrc
-tsconfig.json
 src
 node_modules
