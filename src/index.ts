@@ -440,6 +440,11 @@ namespace Core {
           this.publish(Core.ServiceEventType.Error, { errors: new Core.TCP.PayloadError(error) });
         });
 
+        this._client.on(Core.ConnectionEventType.End, () => {
+          this.emit(Core.ServiceEventType.Disconnect);
+          this.publish(Core.ServiceEventType.Disconnect);
+        });
+
         this._client.on(Core.ConnectionEventType.Data, buffer => {
           const data = Core.F.parseBuffer(buffer);
           data.forEach(item => {
