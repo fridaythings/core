@@ -502,10 +502,7 @@ namespace Core {
             this.publish(Core.ServiceEventType.DeviceRemoved, { device });
           });
 
-          promises.push(
-            service.connect(),
-            new Promise(resolve => service.once(Core.ServiceEventType.Connect, resolve))
-          );
+          promises.push(service.connect());
         });
 
         await Promise.all(promises);

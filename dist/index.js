@@ -294,6 +294,8 @@ var Core;
                 });
             }
             publish(event, payload) {
+                if (!this._client.writable)
+                    return;
                 const data = Core.F.stringify({ event, date: new Date(), payload });
                 this._client.write(data);
             }
@@ -357,7 +359,7 @@ var Core;
                     service.on(Core.ServiceEventType.DeviceRemoved, device => {
                         this.publish(Core.ServiceEventType.DeviceRemoved, { device });
                     });
-                    promises.push(service.connect(), new Promise(resolve => service.once(Core.ServiceEventType.Connect, resolve)));
+                    promises.push(service.connect());
                 });
                 await Promise.all(promises);
                 await new Promise(resolve => this._client.once(Core.ConnectionEventType.Connect, resolve));
