@@ -304,12 +304,14 @@ var Core;
                 this._client.on(Core.ConnectionEventType.Error, (error) => {
                     if (error.code === 'ECONNREFUSED') {
                         this._client.removeAllListeners();
+                        this._services.forEach(service => service.disconnect());
                     }
                     this.emit(Core.ServiceEventType.Error, error);
                     this.publish(Core.ServiceEventType.Error, { errors: new Core.TCP.PayloadError(error) });
                 });
                 this._client.on(Core.ConnectionEventType.End, () => {
                     this._client.removeAllListeners();
+                    this._services.forEach(service => service.disconnect());
                     this.emit(Core.ServiceEventType.Disconnect);
                     this.publish(Core.ServiceEventType.Disconnect);
                 });
@@ -370,9 +372,8 @@ var Core;
                 await new Promise(resolve => this._client.once(Core.ConnectionEventType.Connect, resolve));
             }
             disconnect() {
-                this._services.forEach(service => {
-                    service.disconnect();
-                });
+                this._client.removeAllListeners();
+                this._services.forEach(service => service.disconnect());
                 this.publish(Core.ServiceEventType.Disconnect);
             }
         }
