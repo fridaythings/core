@@ -433,12 +433,13 @@ namespace Core {
         this._client.connect({ port: this._port, host: this._host });
 
         this._client.on(Core.ConnectionEventType.Error, (error: Error & { code: string }) => {
+          this.emit(Core.ServiceEventType.Error, error);
+          this.publish(Core.ServiceEventType.Error, { errors: new Core.TCP.PayloadError(error) });
+
           if (error.code === 'ECONNREFUSED') {
             this._client.removeAllListeners();
             this._services.forEach(service => service.disconnect());
           }
-          this.emit(Core.ServiceEventType.Error, error);
-          this.publish(Core.ServiceEventType.Error, { errors: new Core.TCP.PayloadError(error) });
         });
 
         this._client.on(Core.ConnectionEventType.End, () => {
