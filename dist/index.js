@@ -309,6 +309,7 @@ var Core;
                     this.publish(Core.ServiceEventType.Error, { errors: new Core.TCP.PayloadError(error) });
                 });
                 this._client.on(Core.ConnectionEventType.End, () => {
+                    this._client.removeAllListeners();
                     this.emit(Core.ServiceEventType.Disconnect);
                     this.publish(Core.ServiceEventType.Disconnect);
                 });

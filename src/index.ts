@@ -441,6 +441,7 @@ namespace Core {
         });
 
         this._client.on(Core.ConnectionEventType.End, () => {
+          this._client.removeAllListeners();
           this.emit(Core.ServiceEventType.Disconnect);
           this.publish(Core.ServiceEventType.Disconnect);
         });
