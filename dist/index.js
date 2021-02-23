@@ -304,10 +304,8 @@ var Core;
                 this._client.on(Core.ConnectionEventType.Error, (error) => {
                     this.emit(Core.ServiceEventType.Error, error);
                     this.publish(Core.ServiceEventType.Error, { errors: new Core.TCP.PayloadError(error) });
-                    if (error.code === 'ECONNREFUSED') {
-                        this._client.removeAllListeners();
-                        this._services.forEach(service => service.disconnect());
-                    }
+                    this._client.removeAllListeners();
+                    this._services.forEach(service => service.disconnect());
                 });
                 this._client.on(Core.ConnectionEventType.End, () => {
                     this._client.removeAllListeners();
@@ -378,42 +376,6 @@ var Core;
             }
         }
         TCP.ServiceManager = ServiceManager;
-        //
-        // export class ServiceClient extends Core.Connection {
-        //   private _client: net.Socket = new net.Socket();
-        //
-        //   constructor(options: Core.IConnectionOptions) {
-        //     super(options);
-        //   }
-        //
-        //   async connect(): Promise<void> {
-        //     await new Promise(resolve =>
-        //       this._client.connect({ port: this._port, host: this._host }, resolve)
-        //     );
-        //
-        //     this._client.on(
-        //       Core.ConnectionEventType.Error,
-        //       this.emit.bind(this, Core.ServiceEventType.Error)
-        //     );
-        //     this._client.on(
-        //       Core.ConnectionEventType.Close,
-        //       this.emit.bind(this, Core.ServiceEventType.Disconnect)
-        //     );
-        //     this._client.on(Core.ConnectionEventType.Data, buffer => {
-        //       Core.F.parseBuffer(buffer).forEach(data => this.emit(Core.ServiceEventType.Data, data));
-        //     });
-        //   }
-        //
-        //   disconnect() {
-        //     this._client.destroy();
-        //     this.removeAllListeners();
-        //   }
-        //
-        //   async send(deviceId: string, command: string, params?: any): Promise<void> {
-        //     const data = Core.F.stringify({ deviceId, command, params });
-        //     await new Promise(resolve => this._client.write(data, resolve));
-        //   }
-        // }
     })(TCP = Core.TCP || (Core.TCP = {}));
 })(Core || (Core = {}));
 exports.default = Core;
