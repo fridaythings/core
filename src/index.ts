@@ -522,6 +522,12 @@ namespace Core {
 
         this.publish(Core.ServiceEventType.Disconnect);
       }
+
+      public get devices(): Core.Device[] {
+        const devices: Core.Device[] = [];
+        this._services.forEach(service => service.devices.forEach(device => devices.push(device)));
+        return devices;
+      }
     }
   }
 }

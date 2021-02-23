@@ -374,6 +374,11 @@ var Core;
                 this._services.forEach(service => service.disconnect());
                 this.publish(Core.ServiceEventType.Disconnect);
             }
+            get devices() {
+                const devices = [];
+                this._services.forEach(service => service.devices.forEach(device => devices.push(device)));
+                return devices;
+            }
         }
         TCP.ServiceManager = ServiceManager;
     })(TCP = Core.TCP || (Core.TCP = {}));

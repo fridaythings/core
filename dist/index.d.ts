@@ -201,6 +201,7 @@ declare namespace Core {
             }): void;
             connect(): Promise<void>;
             disconnect(): void;
+            get devices(): Core.Device[];
         }
     }
     export {};
