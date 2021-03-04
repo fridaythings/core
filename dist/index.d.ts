@@ -23,8 +23,8 @@ declare namespace Core {
     export interface IConnection extends EventEmitter {
         host: string;
         port: number;
-        connect(): Promise<void>;
-        disconnect(): void;
+        connect(): Promise<this>;
+        disconnect(): this;
         send(...args: any[]): Promise<any>;
     }
     export enum ConnectionEventType {
@@ -64,8 +64,8 @@ declare namespace Core {
         constructor(options?: IConnectionOptions);
         get host(): string;
         get port(): number;
-        connect(): Promise<void>;
-        disconnect(): void;
+        connect(): Promise<this>;
+        disconnect(): this;
         send(...args: any[]): Promise<any>;
     }
     export interface IDataResponse {
@@ -133,8 +133,8 @@ declare namespace Core {
         get commands(): string[];
         set commands(commands: string[]);
         send(command: string, params?: any): Promise<IDataResponse>;
-        connect(): Promise<void>;
-        disconnect(): void;
+        connect(): Promise<this>;
+        disconnect(): this;
         toObject(): {
             id: string;
             type: string;
@@ -151,8 +151,8 @@ declare namespace Core {
     export class TCPDevice extends Core.Device {
         protected _client: net.Socket;
         constructor(options: IDeviceOptions);
-        connect(): Promise<void>;
-        disconnect(): void;
+        connect(): Promise<this>;
+        disconnect(): this;
         send(command: string, params?: any): Promise<Core.IDataResponse>;
     }
     export interface IService extends Core.IConnection {
@@ -176,8 +176,8 @@ declare namespace Core {
         get devices(): Map<string, Device>;
         protected scan(): Promise<void>;
         send(...args: any[]): Promise<void>;
-        connect(): Promise<void>;
-        disconnect(): void;
+        connect(): Promise<this>;
+        disconnect(): this;
     }
     export namespace TCP {
         class PayloadError extends Error {
@@ -199,8 +199,8 @@ declare namespace Core {
             publish(event: Core.ServiceEventType, payload?: Core.IKeyValue | {
                 errors: PayloadError[];
             }): void;
-            connect(): Promise<void>;
-            disconnect(): void;
+            connect(): Promise<this>;
+            disconnect(): this;
             get devices(): Core.Device[];
         }
     }

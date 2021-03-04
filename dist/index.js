@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -98,14 +107,18 @@ var Core;
         get port() {
             return this._port;
         }
-        async connect() {
-            throw new Error('connect: No implementation');
+        connect() {
+            return __awaiter(this, void 0, void 0, function* () {
+                throw new Error('connect: No implementation');
+            });
         }
         disconnect() {
             throw new Error('disconnect: No implementation');
         }
-        async send(...args) {
-            throw new Error('connect: No implementation');
+        send(...args) {
+            return __awaiter(this, void 0, void 0, function* () {
+                throw new Error('connect: No implementation');
+            });
         }
     }
     Core.Connection = Connection;
@@ -179,15 +192,18 @@ var Core;
         set commands(commands) {
             this._commands = commands;
         }
-        async send(command, params) {
-            this._requestId++;
-            return Promise.resolve({ id: this._requestId, result: {} });
+        send(command, params) {
+            return __awaiter(this, void 0, void 0, function* () {
+                this._requestId++;
+                return Promise.resolve({ id: this._requestId, result: {} });
+            });
         }
         connect() {
             throw new Error(`No "connect" implementation for device: [id: ${this.id}]`);
         }
         disconnect() {
             this.removeAllListeners();
+            return this;
         }
         toObject() {
             return {
@@ -222,12 +238,15 @@ var Core;
                 this._client.removeAllListeners();
             });
         }
-        async connect() {
-            return new Promise(resolve => this._client.connect({ port: this._port, host: this._host }, resolve));
+        connect() {
+            return __awaiter(this, void 0, void 0, function* () {
+                yield new Promise(resolve => this._client.connect({ port: this._port, host: this._host }, resolve));
+                return this;
+            });
         }
         disconnect() {
-            super.disconnect();
             this._client.destroy();
+            return super.disconnect();
         }
         send(command, params) {
             return super.send(command, params);
@@ -243,16 +262,23 @@ var Core;
         get devices() {
             return this._devices;
         }
-        async scan() {
-            throw new Error(`No "scan" implementation for service: [port: ${this._port}]`);
+        scan() {
+            return __awaiter(this, void 0, void 0, function* () {
+                throw new Error(`No "scan" implementation for service: [port: ${this._port}]`);
+            });
         }
-        async send(...args) {
-            throw new Error(`No "send" implementation for service: [port: ${this._port}]`);
+        send(...args) {
+            return __awaiter(this, void 0, void 0, function* () {
+                throw new Error(`No "send" implementation for service: [port: ${this._port}]`);
+            });
         }
-        async connect() {
-            this.once(Core.ServiceEventType.Disconnect, () => {
-                const intervalId = setInterval(() => this.connect(), Core.Service.ScanInterval);
-                this.once(Core.ServiceEventType.Connect, () => clearInterval(intervalId));
+        connect() {
+            return __awaiter(this, void 0, void 0, function* () {
+                this.once(Core.ServiceEventType.Disconnect, () => {
+                    const intervalId = setInterval(() => this.connect(), Core.Service.ScanInterval);
+                    this.once(Core.ServiceEventType.Connect, () => clearInterval(intervalId));
+                });
+                return this;
             });
         }
         disconnect() {
@@ -262,6 +288,7 @@ var Core;
             this._timeouts = [];
             this.removeAllListeners();
             this.emit(ServiceEventType.Disconnect);
+            return this;
         }
     }
     Service.ScanInterval = 5000;
@@ -299,80 +326,84 @@ var Core;
                 const data = Core.F.stringify({ event, date: new Date(), payload });
                 this._client.write(data);
             }
-            async connect() {
-                this._client.connect({ port: this._port, host: this._host });
-                this._client.on(Core.ConnectionEventType.Error, (error) => {
-                    this.emit(Core.ServiceEventType.Error, error);
-                    this.publish(Core.ServiceEventType.Error, { errors: new Core.TCP.PayloadError(error) });
-                    this._client.removeAllListeners();
-                    this._services.forEach(service => service.disconnect());
-                });
-                this._client.on(Core.ConnectionEventType.End, () => {
-                    this._client.removeAllListeners();
-                    this._services.forEach(service => service.disconnect());
-                    this.emit(Core.ServiceEventType.Disconnect);
-                    this.publish(Core.ServiceEventType.Disconnect);
-                });
-                this._client.on(Core.ConnectionEventType.Data, buffer => {
-                    const data = Core.F.parseBuffer(buffer);
-                    data.forEach(item => {
-                        const { service: serviceName, deviceId, command, params } = item;
-                        const errors = [];
-                        const service = this._services.get(serviceName);
-                        if (!service) {
-                            errors.push(new PayloadError(`No service attached: [service="${serviceName}"]`));
-                        }
-                        if (!command) {
-                            errors.push(new PayloadError(`No command provided: [command=""]`));
-                        }
-                        const device = service === null || service === void 0 ? void 0 : service.devices.get(deviceId);
-                        if (deviceId && !device) {
-                            errors.push(new PayloadError(`No device connected: [deviceId="${deviceId}"]`));
-                        }
-                        if (errors.length > 0) {
-                            return this.publish(Core.ServiceEventType.Error, { errors });
-                        }
-                        if (!service)
-                            return;
-                        return device ? device.send(command, params) : service.send(command, params);
+            connect() {
+                return __awaiter(this, void 0, void 0, function* () {
+                    this._client.connect({ port: this._port, host: this._host });
+                    this._client.on(Core.ConnectionEventType.Error, (error) => {
+                        this.emit(Core.ServiceEventType.Error, error);
+                        this.publish(Core.ServiceEventType.Error, { errors: new Core.TCP.PayloadError(error) });
+                        this._client.removeAllListeners();
+                        this._services.forEach(service => service.disconnect());
                     });
-                });
-                const promises = [];
-                this._services.forEach(service => {
-                    service.devices.forEach(device => {
-                        this.publish(Core.ServiceEventType.DeviceAdded, { device: device.toObject() });
+                    this._client.on(Core.ConnectionEventType.End, () => {
+                        this._client.removeAllListeners();
+                        this._services.forEach(service => service.disconnect());
+                        this.emit(Core.ServiceEventType.Disconnect);
+                        this.publish(Core.ServiceEventType.Disconnect);
                     });
-                    service.on(Core.ServiceEventType.Disconnect, error => {
-                        this.publish(Core.ServiceEventType.Disconnect, {
-                            service: { type: service.constructor.name, error },
+                    this._client.on(Core.ConnectionEventType.Data, buffer => {
+                        const data = Core.F.parseBuffer(buffer);
+                        data.forEach(item => {
+                            const { service: serviceName, deviceId, command, params } = item;
+                            const errors = [];
+                            const service = this._services.get(serviceName);
+                            if (!service) {
+                                errors.push(new PayloadError(`No service attached: [service="${serviceName}"]`));
+                            }
+                            if (!command) {
+                                errors.push(new PayloadError(`No command provided: [command=""]`));
+                            }
+                            const device = service === null || service === void 0 ? void 0 : service.devices.get(deviceId);
+                            if (deviceId && !device) {
+                                errors.push(new PayloadError(`No device connected: [deviceId="${deviceId}"]`));
+                            }
+                            if (errors.length > 0) {
+                                return this.publish(Core.ServiceEventType.Error, { errors });
+                            }
+                            if (!service)
+                                return;
+                            return device ? device.send(command, params) : service.send(command, params);
                         });
                     });
-                    service.on(Core.ServiceEventType.Error, error => {
-                        this.publish(Core.ServiceEventType.Error, { errors: [new PayloadError(error)] });
-                    });
-                    service.on(Core.ServiceEventType.PermitJoin, data => {
-                        this.publish(Core.ServiceEventType.PermitJoin, {
-                            service: { type: service.constructor.name, ...data },
+                    const promises = [];
+                    this._services.forEach(service => {
+                        service.devices.forEach(device => {
+                            this.publish(Core.ServiceEventType.DeviceAdded, { device: device.toObject() });
                         });
+                        service.on(Core.ServiceEventType.Disconnect, error => {
+                            this.publish(Core.ServiceEventType.Disconnect, {
+                                service: { type: service.constructor.name, error },
+                            });
+                        });
+                        service.on(Core.ServiceEventType.Error, error => {
+                            this.publish(Core.ServiceEventType.Error, { errors: [new PayloadError(error)] });
+                        });
+                        service.on(Core.ServiceEventType.PermitJoin, data => {
+                            this.publish(Core.ServiceEventType.PermitJoin, {
+                                service: Object.assign({ type: service.constructor.name }, data),
+                            });
+                        });
+                        service.on(Core.ServiceEventType.DeviceAdded, device => {
+                            this.publish(Core.ServiceEventType.DeviceAdded, { device });
+                        });
+                        service.on(Core.ServiceEventType.DeviceChanged, device => {
+                            this.publish(Core.ServiceEventType.DeviceChanged, { device });
+                        });
+                        service.on(Core.ServiceEventType.DeviceRemoved, device => {
+                            this.publish(Core.ServiceEventType.DeviceRemoved, { device });
+                        });
+                        promises.push(service.connect());
                     });
-                    service.on(Core.ServiceEventType.DeviceAdded, device => {
-                        this.publish(Core.ServiceEventType.DeviceAdded, { device });
-                    });
-                    service.on(Core.ServiceEventType.DeviceChanged, device => {
-                        this.publish(Core.ServiceEventType.DeviceChanged, { device });
-                    });
-                    service.on(Core.ServiceEventType.DeviceRemoved, device => {
-                        this.publish(Core.ServiceEventType.DeviceRemoved, { device });
-                    });
-                    promises.push(service.connect());
+                    yield Promise.all(promises);
+                    yield new Promise(resolve => this._client.once(Core.ConnectionEventType.Connect, resolve));
+                    return this;
                 });
-                await Promise.all(promises);
-                await new Promise(resolve => this._client.once(Core.ConnectionEventType.Connect, resolve));
             }
             disconnect() {
                 this._client.removeAllListeners();
                 this._services.forEach(service => service.disconnect());
                 this.publish(Core.ServiceEventType.Disconnect);
+                return this;
             }
             get devices() {
                 const devices = [];

@@ -54,8 +54,8 @@ namespace Core {
   export interface IConnection extends EventEmitter {
     host: string;
     port: number;
-    connect(): Promise<void>;
-    disconnect(): void;
+    connect(): Promise<this>;
+    disconnect(): this;
     send(...args: any[]): Promise<any>;
   }
 
@@ -116,11 +116,11 @@ namespace Core {
       return this._port;
     }
 
-    public async connect(): Promise<void> {
+    public async connect(): Promise<this> {
       throw new Error('connect: No implementation');
     }
 
-    public disconnect() {
+    public disconnect(): this {
       throw new Error('disconnect: No implementation');
     }
 
@@ -270,12 +270,13 @@ namespace Core {
       return Promise.resolve({ id: this._requestId, result: {} });
     }
 
-    public connect(): Promise<void> {
+    public connect(): Promise<this> {
       throw new Error(`No "connect" implementation for device: [id: ${this.id}]`);
     }
 
-    public disconnect() {
+    public disconnect(): this {
       this.removeAllListeners();
+      return this;
     }
 
     public toObject() {
@@ -315,15 +316,16 @@ namespace Core {
       });
     }
 
-    public async connect(): Promise<void> {
-      return new Promise(resolve =>
+    public async connect(): Promise<this> {
+      await new Promise(resolve =>
         this._client.connect({ port: this._port, host: this._host }, resolve)
       );
+      return this;
     }
 
-    public disconnect(): void {
-      super.disconnect();
+    public disconnect(): this {
       this._client.destroy();
+      return super.disconnect();
     }
 
     public send(command: string, params?: any): Promise<Core.IDataResponse> {
@@ -369,11 +371,12 @@ namespace Core {
       throw new Error(`No "send" implementation for service: [port: ${this._port}]`);
     }
 
-    public async connect(): Promise<void> {
+    public async connect(): Promise<this> {
       this.once(Core.ServiceEventType.Disconnect, () => {
         const intervalId = setInterval(() => this.connect(), Core.Service.ScanInterval);
         this.once(Core.ServiceEventType.Connect, () => clearInterval(intervalId));
       });
+      return this;
     }
 
     public disconnect() {
@@ -383,6 +386,7 @@ namespace Core {
       this._timeouts = [];
       this.removeAllListeners();
       this.emit(ServiceEventType.Disconnect);
+      return this;
     }
   }
 
@@ -429,7 +433,7 @@ namespace Core {
         this._client.write(data);
       }
 
-      public async connect(): Promise<void> {
+      public async connect(): Promise<this> {
         this._client.connect({ port: this._port, host: this._host });
 
         this._client.on(Core.ConnectionEventType.Error, (error: Error & { code: string }) => {
@@ -514,13 +518,15 @@ namespace Core {
 
         await Promise.all(promises);
         await new Promise(resolve => this._client.once(Core.ConnectionEventType.Connect, resolve));
+        return this;
       }
 
-      public disconnect() {
+      public disconnect(): this {
         this._client.removeAllListeners();
         this._services.forEach(service => service.disconnect());
 
         this.publish(Core.ServiceEventType.Disconnect);
+        return this;
       }
 
       public get devices(): Core.Device[] {
